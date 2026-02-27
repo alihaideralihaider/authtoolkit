@@ -1,13 +1,12 @@
-// main.js (updated / hardened)
+// main.js (AuthToolkit frontend)
 
 function emailApp() {
   const FUNCTIONS_BASE = "https://jmnpfdqxzilbobffqhda.supabase.co/functions/v1";
   const STORAGE_ACTIVE = "tempInbox";
   const STORAGE_SESSION = "session_id";
 
-  const POLL_MS = 20000;
-
-  // network timeouts
+  // slower polling reduces 429s a lot
+  const POLL_MS = 45000;
   const FETCH_TIMEOUT_MS = 12000;
 
   return {
@@ -23,22 +22,43 @@ function emailApp() {
 
     // prevents overlapping requests
     pollInFlight: false,
-    // if we get 429, we back off instead of spamming logs
+
+    // backoff for 429
     backoffUntilMs: 0,
+
+    // UI state for 429
+    isRateLimited: false,
+    rateLimitUntil: 0,
+
+    // reduce accidental burst calls
+    lastFetchAtMs: 0,
 
     toast: { show: false, text: "" },
 
     init() {
       this.restoreInbox();
+
+      // Pause polling in background tabs to reduce 429s
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+          clearInterval(this.refreshInterval);
+          this.refreshInterval = null;
+        } else {
+          // resume polling + do a single refresh
+          if (this.inboxId && this.sessionId && !this.refreshInterval) {
+            this.refreshInterval = setInterval(() => this.fetchEmails(), POLL_MS);
+          }
+          this.fetchEmails();
+        }
+      });
     },
 
     showToast(text) {
       this.toast.text = text;
       this.toast.show = true;
-      setTimeout(() => (this.toast.show = false), 20000);
+      setTimeout(() => (this.toast.show = false), 5000);
     },
 
-    // ✅ AbortController timeout wrapper (prevents hanging fetch)
     async fetchWithTimeout(url, opts = {}, timeoutMs = FETCH_TIMEOUT_MS) {
       const ctrl = new AbortController();
       const t = setTimeout(() => ctrl.abort(), timeoutMs);
@@ -57,11 +77,8 @@ function emailApp() {
 
         const res = await this.fetchWithTimeout(url.toString(), { method: "POST" });
 
-        // Try json but don’t crash if it’s not json
         let data = {};
-        try {
-          data = await res.json();
-        } catch (_) {}
+        try { data = await res.json(); } catch (_) {}
 
         if (!res.ok) {
           alert(data.error || "Failed to create inbox");
@@ -85,11 +102,14 @@ function emailApp() {
           })
         );
 
-        // Reset guards for a brand new inbox
+        // reset guards/states
         this.pollInFlight = false;
         this.backoffUntilMs = 0;
+        this.isRateLimited = false;
+        this.rateLimitUntil = 0;
+        this.lastFetchAtMs = 0;
 
-        // ✅ First fetch immediately, then start timers (reduces “double fetch” feel)
+        // fetch once immediately, then start timers
         await this.fetchEmails();
         this.startTimers();
 
@@ -105,10 +125,14 @@ function emailApp() {
 
       const now = Date.now();
 
-      // Respect backoff window
+      // minimum spacing between calls (prevents accidental bursts)
+      const minGapMs = 5000;
+      if (now - this.lastFetchAtMs < minGapMs) return;
+
+      // respect backoff
       if (now < this.backoffUntilMs) return;
 
-      // Prevent overlapping calls (timer + manual + restore)
+      // avoid overlap
       if (this.pollInFlight) return;
       this.pollInFlight = true;
 
@@ -119,38 +143,47 @@ function emailApp() {
 
         const res = await this.fetchWithTimeout(url.toString(), {}, FETCH_TIMEOUT_MS);
 
-        // ✅ Auto-clear if session is invalid/expired
+        // invalid/expired session
         if (res.status === 401 || res.status === 403) {
           console.warn("get-emails unauthorized; clearing session");
           this.clearSession();
           return;
         }
 
-        // ✅ Handle 429 cleanly (cap + jitter)
+        // 429 backoff (cap + jitter) + UI banner
         if (res.status === 429) {
           const retryAfterHeader = res.headers.get("Retry-After");
-          let retrySec = 20;
+          let retrySec = 15;
 
           if (retryAfterHeader) {
             const parsed = parseInt(retryAfterHeader, 10);
             if (!Number.isNaN(parsed) && parsed > 0) retrySec = parsed;
           } else {
-            // fallback to JSON body field if present
+            // try JSON body fallback (optional)
             try {
               const body = await res.json();
               if (body?.retry_after_seconds) retrySec = Number(body.retry_after_seconds) || retrySec;
             } catch (_) {}
           }
 
-          retrySec = Math.min(retrySec, 120); // cap at 2 minutes
-          const jitterMs = Math.floor(Math.random() * 1500); // up to 1.5s jitter
+          retrySec = Math.min(retrySec, 120);
+          const jitterMs = Math.floor(Math.random() * 1000);
+          const backoffMs = retrySec * 1000 + jitterMs;
 
-          this.backoffUntilMs = Date.now() + retrySec * 1000 + jitterMs;
+          this.backoffUntilMs = Date.now() + backoffMs;
+
+          this.isRateLimited = true;
+          this.rateLimitUntil = this.backoffUntilMs;
+
+          // auto-clear banner after backoff
+          setTimeout(() => {
+            if (Date.now() >= this.rateLimitUntil) this.isRateLimited = false;
+          }, backoffMs);
+
           console.warn("get-emails 429: backing off for", retrySec, "seconds");
           return;
         }
 
-        // Parse JSON safely
         let data = {};
         try {
           data = await res.json();
@@ -166,7 +199,7 @@ function emailApp() {
 
         const list = Array.isArray(data.emails) ? data.emails : [];
 
-        // ✅ Dedupe by id to reduce UI churn
+        // dedupe by id
         const seen = new Set();
         const deduped = [];
         for (const m of list) {
@@ -176,11 +209,13 @@ function emailApp() {
           deduped.push(m);
         }
 
-        // preserve open state
-        const openMap = new Map(this.emails.map((m) => [m.id, m._open]));
-        this.emails = deduped.map((m) => ({ ...m, _open: openMap.get(m.id) || false }));
+        this.emails = deduped;
+        this.lastFetchAtMs = Date.now();
+
+        // clear banner after success
+        this.isRateLimited = false;
+        this.rateLimitUntil = 0;
       } catch (e) {
-        // AbortError is expected on timeout; keep log minimal
         if (e?.name === "AbortError") {
           console.warn("get-emails timed out");
         } else {
@@ -189,10 +224,6 @@ function emailApp() {
       } finally {
         this.pollInFlight = false;
       }
-    },
-
-    toggleOpen(m) {
-      m._open = !m._open;
     },
 
     copyEmail() {
@@ -219,6 +250,35 @@ function emailApp() {
         });
     },
 
+    copyBodyLatest() {
+      const m = (this.emails && this.emails.length > 0) ? this.emails[0] : null;
+      const text = (m && (m.body || m.html || m.text || m.preview || m.snippet)) || "";
+      if (!text) {
+        this.showToast("No body to copy");
+        return;
+      }
+
+      navigator.clipboard
+        .writeText(text)
+        .then(() => this.showToast("Body copied!"))
+        .catch(() => {
+          try {
+            const ta = document.createElement("textarea");
+            ta.value = text;
+            ta.style.position = "fixed";
+            ta.style.opacity = "0";
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand("copy");
+            document.body.removeChild(ta);
+            this.showToast("Body copied!");
+          } catch (e) {
+            console.error("Copy body failed:", e);
+            alert("Copy failed. Please copy manually.");
+          }
+        });
+    },
+
     startTimers() {
       if (!this.expiresAt) return;
 
@@ -228,8 +288,10 @@ function emailApp() {
       this.updateCountdown();
       this.countdownInterval = setInterval(() => this.updateCountdown(), 1000);
 
-      // single poll interval
-      this.refreshInterval = setInterval(() => this.fetchEmails(), POLL_MS);
+      // only poll if tab is visible
+      if (!document.hidden) {
+        this.refreshInterval = setInterval(() => this.fetchEmails(), POLL_MS);
+      }
     },
 
     updateCountdown() {
@@ -252,7 +314,6 @@ function emailApp() {
     restoreInbox() {
       const saved = localStorage.getItem(STORAGE_ACTIVE);
       const savedSession = localStorage.getItem(STORAGE_SESSION);
-
       if (!saved) return;
 
       try {
@@ -268,11 +329,12 @@ function emailApp() {
 
           if (this.sessionId) localStorage.setItem(STORAGE_SESSION, this.sessionId);
 
-          // Reset guards on restore too
           this.pollInFlight = false;
           this.backoffUntilMs = 0;
+          this.isRateLimited = false;
+          this.rateLimitUntil = 0;
+          this.lastFetchAtMs = 0;
 
-          // ✅ immediate fetch, then timers
           this.fetchEmails();
           this.startTimers();
         } else {
@@ -299,6 +361,9 @@ function emailApp() {
 
       this.pollInFlight = false;
       this.backoffUntilMs = 0;
+      this.isRateLimited = false;
+      this.rateLimitUntil = 0;
+      this.lastFetchAtMs = 0;
 
       this.showToast("Cleared");
     },

@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AuthToolkit — Privacy-first disposable inbox for testing</title>
 
-  <script defer src="./main.js"></script>
+  <!-- Stop favicon.ico 404 -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🛡️</text></svg>">
+
+  <script defer src="./main.js?v=7"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
   <style>
@@ -123,6 +126,7 @@
       padding:10px 12px; border-radius:12px; cursor:pointer;
     }
     .btn:hover{ background:#202c4f; }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
     .btnPrimary{ background:var(--blue); border-color:var(--blue); }
     .btnPrimary:hover{ background:var(--blue2); }
     .btnDanger{ background:var(--danger); border-color:var(--danger); }
@@ -160,8 +164,20 @@
       border:1px solid #2f3c5a;
       padding:10px 12px;
       border-radius:12px;
-      z-index:50;
+      z-index:90;
       box-shadow: 0 10px 26px rgba(0,0,0,.35);
+    }
+
+    /* Rate limit banner */
+    .rlBanner{
+      margin:14px 18px 0;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background:#7f1d1d;
+      color:#fff;
+      font-size:13px;
+      font-weight:700;
     }
 
     /* Fixed bottom ad */
@@ -230,6 +246,11 @@
             <span class="pill">✅ Micro-infrastructure</span>
           </div>
         </div>
+      </div>
+
+      <!-- Rate limit banner (only shows when 429 happens) -->
+      <div class="rlBanner" x-show="isRateLimited" style="display:none;">
+        Rate limited (429). Retrying automatically…
       </div>
 
       <!-- Main content -->
@@ -329,6 +350,7 @@
               <div class="btnRow">
                 <button class="btn btnPrimary" @click="createInbox()">Create Inbox</button>
                 <button class="btn" @click="fetchEmails()" :disabled="!inboxId">Refresh</button>
+                <button class="btn" @click="copyBodyLatest()" :disabled="!emails || emails.length===0">Copy Body</button>
                 <button class="btn btnDanger" @click="clearSession()" :disabled="!inboxId">Clear</button>
               </div>
 
@@ -336,7 +358,7 @@
                 Tip: This landing page is intentionally simple and fast. The services menu is our roadmap.
               </div>
 
-              <!-- Mailbox summary moved up (under Tip) -->
+              <!-- Mailbox summary -->
               <div style="margin-top:12px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
                 <div style="font-weight:900;">Mailbox</div>
                 <div class="pill"><span x-text="emails.length"></span> messages</div>
@@ -364,7 +386,19 @@
                         From: <span class="mono" x-text="emails[0].from_address || '-'"></span>
                       </div>
                       <div class="hr"></div>
-                      <div class="mono" style="white-space:pre-wrap; font-size:13px;" x-text="emails[0].body || '(no body)'"></div>
+
+                      <!-- Raw body (safe) -->
+                      <pre class="mono" style="
+                        white-space:pre-wrap;
+                        font-size:12px;
+                        line-height:1.4;
+                        max-height:360px;
+                        overflow:auto;
+                        padding:10px;
+                        border:1px solid var(--border);
+                        border-radius:12px;
+                        background:rgba(0,0,0,.15);
+                      " x-text="emails[0].body || '(no body)'"></pre>
                     </div>
                   </template>
                 </div>
@@ -386,15 +420,12 @@
                   <input class="input" readonly :value="currentEmail" />
 
                   <div style="margin-top:14px; display:flex; flex-direction:column; gap:14px;">
-
-                    <!-- Bigger + brighter copy button ABOVE timer -->
                     <button class="btn btnPrimary"
                       style="height:56px; font-size:16px; font-weight:900;"
                       @click="copyEmail()">
                       Copy Email Address
                     </button>
 
-                    <!-- Big Countdown (below copy) -->
                     <div style="
                       height:96px;
                       border-radius:16px;
@@ -426,7 +457,7 @@
     <div class="adbar">
       <div class="adInner">
         <div class="muted">Ad</div>
-        <div class="adBox">1" Fixed Banner Area (Google Ads later)</div>
+        <div class="adBox">1&quot; Fixed Banner Area (Google Ads later)</div>
         <div class="muted">Never disappears</div>
       </div>
     </div>
