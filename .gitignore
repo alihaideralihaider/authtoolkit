@@ -1,2 +1,7 @@
 .DS_Store
 main copy.js
+.env
+.env.*
+node_modules
+.DS_Store
+supabase/.temp
