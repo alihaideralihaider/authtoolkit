@@ -33,6 +33,9 @@ function emailApp() {
     // reduce accidental burst calls
     lastFetchAtMs: 0,
 
+    // optional cursor support (if backend returns newest_created_at)
+    lastSeenCreatedAt: null,
+
     toast: { show: false, text: "" },
 
     init() {
@@ -59,6 +62,28 @@ function emailApp() {
       setTimeout(() => (this.toast.show = false), 5000);
     },
 
+    // Supports both:
+    // 1) Old flat API: { session_id, inbox_id, email_address, expires_at } or { emails: [...] }
+    // 2) New wrapped API: { ok: true, data: {...} } / { ok:false, error:{...} }
+    unwrapPayload(respJson) {
+      if (respJson && respJson.ok === true && respJson.data) return respJson.data;
+      return respJson;
+    },
+
+    getErrorMessage(respJson, fallback = "Request failed") {
+      if (!respJson) return fallback;
+
+      // New error shape: { ok:false, error:{ code, message, ... } }
+      const msg = respJson?.error?.message;
+      if (typeof msg === "string" && msg.trim()) return msg;
+
+      // Old shape: { error: "..." }
+      const old = respJson?.error;
+      if (typeof old === "string" && old.trim()) return old;
+
+      return fallback;
+    },
+
     async fetchWithTimeout(url, opts = {}, timeoutMs = FETCH_TIMEOUT_MS) {
       const ctrl = new AbortController();
       const t = setTimeout(() => ctrl.abort(), timeoutMs);
@@ -77,19 +102,27 @@ function emailApp() {
 
         const res = await this.fetchWithTimeout(url.toString(), { method: "POST" });
 
-        let data = {};
-        try { data = await res.json(); } catch (_) {}
+        let raw = {};
+        try {
+          raw = await res.json();
+        } catch (_) {}
 
-        if (!res.ok) {
-          alert(data.error || "Failed to create inbox");
+        // Handle both old and new shapes
+        const payload = this.unwrapPayload(raw);
+
+        if (!res.ok || (raw && raw.ok === false)) {
+          alert(this.getErrorMessage(raw, "Failed to create inbox"));
           return;
         }
 
         // Contract: { session_id, inbox_id, email_address, expires_at }
-        this.sessionId = data.session_id;
-        this.inboxId = data.inbox_id;
-        this.currentEmail = data.email_address;
-        this.expiresAt = data.expires_at;
+        this.sessionId = payload.session_id;
+        this.inboxId = payload.inbox_id;
+        this.currentEmail = payload.email_address;
+        this.expiresAt = payload.expires_at;
+
+        // reset cursor for polling
+        this.lastSeenCreatedAt = null;
 
         localStorage.setItem(STORAGE_SESSION, this.sessionId);
         localStorage.setItem(
@@ -141,6 +174,11 @@ function emailApp() {
         url.searchParams.set("inbox_id", this.inboxId);
         url.searchParams.set("session_id", this.sessionId);
 
+        // Optional cursor support: ask only for new emails since last seen
+        if (this.lastSeenCreatedAt) {
+          url.searchParams.set("since", this.lastSeenCreatedAt);
+        }
+
         const res = await this.fetchWithTimeout(url.toString(), {}, FETCH_TIMEOUT_MS);
 
         // invalid/expired session
@@ -162,7 +200,15 @@ function emailApp() {
             // try JSON body fallback (optional)
             try {
               const body = await res.json();
-              if (body?.retry_after_seconds) retrySec = Number(body.retry_after_seconds) || retrySec;
+              // New shape:
+              // { ok:false, error:{ retry_after_seconds } }
+              // Old shape:
+              // { retry_after_seconds }
+              const ra =
+                body?.error?.retry_after_seconds ??
+                body?.retry_after_seconds;
+
+              if (ra) retrySec = Number(ra) || retrySec;
             } catch (_) {}
           }
 
@@ -184,20 +230,22 @@ function emailApp() {
           return;
         }
 
-        let data = {};
+        let raw = {};
         try {
-          data = await res.json();
+          raw = await res.json();
         } catch (e) {
           console.error("get-emails: failed to parse JSON:", e);
           return;
         }
 
-        if (!res.ok) {
-          console.error("get-emails failed:", data);
+        const payload = this.unwrapPayload(raw);
+
+        if (!res.ok || (raw && raw.ok === false)) {
+          console.error("get-emails failed:", raw);
           return;
         }
 
-        const list = Array.isArray(data.emails) ? data.emails : [];
+        const list = Array.isArray(payload?.emails) ? payload.emails : [];
 
         // dedupe by id
         const seen = new Set();
@@ -209,8 +257,32 @@ function emailApp() {
           deduped.push(m);
         }
 
-        this.emails = deduped;
+        // If we used cursor `since`, backend will return only *new* emails.
+        // Merge by placing new emails at the top, then dedupe.
+        if (this.lastSeenCreatedAt) {
+          const merged = [...deduped, ...(this.emails || [])];
+          const seen2 = new Set();
+          const mergedDeduped = [];
+          for (const m of merged) {
+            const id = m?.id;
+            if (!id || seen2.has(id)) continue;
+            seen2.add(id);
+            mergedDeduped.push(m);
+          }
+          this.emails = mergedDeduped;
+        } else {
+          this.emails = deduped;
+        }
+
         this.lastFetchAtMs = Date.now();
+
+        // Update cursor if backend provides it (new API)
+        if (payload?.newest_created_at) {
+          this.lastSeenCreatedAt = payload.newest_created_at;
+        } else if (this.emails && this.emails.length > 0 && this.emails[0]?.created_at) {
+          // Fallback: use newest email we have
+          this.lastSeenCreatedAt = this.emails[0].created_at;
+        }
 
         // clear banner after success
         this.isRateLimited = false;
@@ -327,6 +399,9 @@ function emailApp() {
           this.sessionId = data.session_id || savedSession || null;
           this.expiresAt = data.expires_at || null;
 
+          // reset cursor
+          this.lastSeenCreatedAt = null;
+
           if (this.sessionId) localStorage.setItem(STORAGE_SESSION, this.sessionId);
 
           this.pollInFlight = false;
@@ -355,6 +430,9 @@ function emailApp() {
       this.emails = [];
       this.countdown = "";
       this.expiresAt = null;
+
+      // reset cursor
+      this.lastSeenCreatedAt = null;
 
       clearInterval(this.countdownInterval);
       clearInterval(this.refreshInterval);
