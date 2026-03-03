@@ -1,4 +1,4 @@
-// main.js (AuthToolkit frontend) — COMPLETE corrected version
+// main.js (AuthToolkit frontend) — full, corrected
 
 function emailApp() {
   const FUNCTIONS_BASE = "https://jmnpfdqxzilbobffqhda.supabase.co/functions/v1";
@@ -39,9 +39,8 @@ function emailApp() {
     toast: { show: false, text: "" },
 
     init() {
-      // one visible marker to confirm the correct JS is loaded
-      console.log("[AuthToolkit] main.js loaded (corrected)");
-
+      // helpful marker so you know the correct JS loaded
+      console.log("[AuthToolkit] main.js loaded (full UI build)");
       this.restoreInbox();
 
       // Pause polling in background tabs to reduce 429s
@@ -50,6 +49,7 @@ function emailApp() {
           clearInterval(this.refreshInterval);
           this.refreshInterval = null;
         } else {
+          // resume polling + do a single refresh
           if (this.inboxId && this.sessionId && !this.refreshInterval) {
             this.refreshInterval = setInterval(() => this.fetchEmails(), POLL_MS);
           }
@@ -66,10 +66,15 @@ function emailApp() {
 
     getErrorMessage(respJson, fallback = "Request failed") {
       if (!respJson) return fallback;
+
+      // New error shape: { ok:false, error:{ code, message, ... } }
       const msg = respJson?.error?.message;
       if (typeof msg === "string" && msg.trim()) return msg;
+
+      // Old shape: { error: "..." }
       const old = respJson?.error;
       if (typeof old === "string" && old.trim()) return old;
+
       return fallback;
     },
 
@@ -104,7 +109,7 @@ function emailApp() {
           raw = await res.json();
         } catch (_) {}
 
-        // support both shapes:
+        // Support both shapes:
         // old: { session_id, inbox_id, email_address, expires_at }
         // new: { ok:true, data:{ session_id, inbox_id, email_address, expires_at } }
         const payload = (raw && raw.ok === true && raw.data) ? raw.data : raw;
@@ -114,6 +119,7 @@ function emailApp() {
           return;
         }
 
+        // Contract: { session_id, inbox_id, email_address, expires_at }
         this.sessionId = payload.session_id;
         this.inboxId = payload.inbox_id;
         this.currentEmail = payload.email_address;
@@ -133,12 +139,6 @@ function emailApp() {
           })
         );
 
-        // clear old timers before restarting
-        clearInterval(this.countdownInterval);
-        clearInterval(this.refreshInterval);
-        this.countdownInterval = null;
-        this.refreshInterval = null;
-
         // reset guards/states
         this.pollInFlight = false;
         this.backoffUntilMs = 0;
@@ -146,8 +146,10 @@ function emailApp() {
         this.rateLimitUntil = 0;
         this.lastFetchAtMs = 0;
 
+        // clear previous emails in UI so it doesn't show old inbox content
         this.emails = [];
 
+        // fetch once immediately, then start timers
         await this.fetchEmails();
         this.startTimers();
 
@@ -163,7 +165,7 @@ function emailApp() {
 
       const now = Date.now();
 
-      // minimum spacing between calls
+      // minimum spacing between calls (prevents accidental bursts)
       const minGapMs = 5000;
       if (now - this.lastFetchAtMs < minGapMs) return;
 
@@ -182,19 +184,22 @@ function emailApp() {
         url.searchParams.set("inbox_id", this.inboxId);
         url.searchParams.set("session_id", this.sessionId);
 
-        // cursor support (if backend uses it)
+        // Optional cursor support: ask only for new emails since last seen
+        // If your backend doesn't implement `since`, it will just ignore it.
         if (this.lastSeenCreatedAt) {
           url.searchParams.set("since", this.lastSeenCreatedAt);
         }
 
         const res = await this.fetchWithTimeout(url.toString(), {}, FETCH_TIMEOUT_MS);
 
+        // invalid/expired session
         if (res.status === 401 || res.status === 403) {
           console.warn("get-emails unauthorized; clearing session");
           this.clearSession();
           return;
         }
 
+        // 429 backoff (cap + jitter) + UI banner
         if (res.status === 429) {
           const retryAfterHeader = res.headers.get("Retry-After");
           let retrySec = 15;
@@ -203,6 +208,7 @@ function emailApp() {
             const parsed = parseInt(retryAfterHeader, 10);
             if (!Number.isNaN(parsed) && parsed > 0) retrySec = parsed;
           } else {
+            // try JSON body fallback (optional)
             try {
               const body = await res.json();
               const ra = body?.error?.retry_after_seconds ?? body?.retry_after_seconds;
@@ -215,9 +221,11 @@ function emailApp() {
           const backoffMs = retrySec * 1000 + jitterMs;
 
           this.backoffUntilMs = Date.now() + backoffMs;
+
           this.isRateLimited = true;
           this.rateLimitUntil = this.backoffUntilMs;
 
+          // auto-clear banner after backoff
           setTimeout(() => {
             if (Date.now() >= this.rateLimitUntil) this.isRateLimited = false;
           }, backoffMs);
@@ -248,9 +256,6 @@ function emailApp() {
         const list = Array.isArray(raw?.data?.emails) ? raw.data.emails : [];
         const newest = raw?.data?.newest_created_at || null;
 
-        // Debug line so you can confirm it is parsing correctly
-        console.log("[get-emails]", { count: list.length, newest });
-
         // dedupe by id
         const seen = new Set();
         const deduped = [];
@@ -261,7 +266,8 @@ function emailApp() {
           deduped.push(m);
         }
 
-        // merge if cursor was used (since returns only new emails)
+        // If we used cursor `since`, backend may return only *new* emails.
+        // Merge by placing new emails at the top, then dedupe.
         if (this.lastSeenCreatedAt) {
           const merged = [...deduped, ...(this.emails || [])];
           const seen2 = new Set();
@@ -284,14 +290,14 @@ function emailApp() {
           return tb - ta;
         });
 
-        // update cursor
+        // Update cursor if backend provides it
         if (newest) {
           this.lastSeenCreatedAt = newest;
         } else if (this.emails.length > 0 && this.emails[0]?.created_at) {
           this.lastSeenCreatedAt = this.emails[0].created_at;
         }
 
-        // clear rate-limit banner on success
+        // clear banner after success
         this.isRateLimited = false;
         this.rateLimitUntil = 0;
       } catch (e) {
@@ -330,7 +336,7 @@ function emailApp() {
     },
 
     copyBodyLatest() {
-      const m = this.emails && this.emails.length > 0 ? this.emails[0] : null;
+      const m = (this.emails && this.emails.length > 0) ? this.emails[0] : null;
       const text = (m && (m.body || m.html || m.text || m.preview || m.snippet)) || "";
       if (!text) {
         this.showToast("No body to copy");
@@ -367,6 +373,7 @@ function emailApp() {
       this.updateCountdown();
       this.countdownInterval = setInterval(() => this.updateCountdown(), 1000);
 
+      // only poll if tab is visible
       if (!document.hidden) {
         this.refreshInterval = setInterval(() => this.fetchEmails(), POLL_MS);
       }
@@ -405,6 +412,7 @@ function emailApp() {
           this.sessionId = data.session_id || savedSession || null;
           this.expiresAt = data.expires_at || null;
 
+          // reset cursor
           this.lastSeenCreatedAt = null;
 
           if (this.sessionId) localStorage.setItem(STORAGE_SESSION, this.sessionId);
@@ -436,6 +444,7 @@ function emailApp() {
       this.countdown = "";
       this.expiresAt = null;
 
+      // reset cursor
       this.lastSeenCreatedAt = null;
 
       clearInterval(this.countdownInterval);
