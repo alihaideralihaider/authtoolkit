@@ -1,20 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AuthToolkit — Privacy-first disposable inbox for testing</title>
 
-  <!-- Stop favicon.ico 404 -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🛡️</text></svg>">
-
-  <!-- ✅ FIX: Alpine FIRST -->
+  <!-- Load app first, then Alpine (both defer, order matters) -->
+  <script defer src="./main.js?v=fullui-200"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-  <!-- ✅ Then your app (cache-bust so Pages doesn’t serve old JS) -->
-  <script defer src="./main.js?v=20260303-fullui-1"></script>
-
-  <script defer src="./main.js?v=fullui-101"></script>
 
   <style>
     :root{
@@ -27,444 +20,534 @@
       --blue:#2563eb;
       --blue2:#1d4ed8;
       --danger:#b91c1c;
-      --adH:96px; /* 1 inch approx on common displays */
+      --good:#16a34a;
+      --adH:96px; /* ~1 inch */
+      --shadow: 0 18px 40px rgba(0,0,0,.35);
+      --radius: 16px;
+      --radius2: 12px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
     }
-    *{ box-sizing:border-box; }
-    body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--text); }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: var(--sans);
+      background: radial-gradient(1200px 700px at 10% 0%, rgba(37,99,235,.20), transparent 55%),
+                  radial-gradient(900px 500px at 90% 10%, rgba(168,85,247,.16), transparent 60%),
+                  var(--bg);
+      color:var(--text);
+      overflow:hidden; /* keep one-screen */
+    }
 
-    /* Layout: fixed ad, everything else fits above it */
-    .page{
+    /* Layout */
+    .app{
       height: calc(100vh - var(--adH));
+      display:grid;
+      grid-template-columns: 280px 1fr;
+      gap: 18px;
+      padding: 18px;
+    }
+
+    /* Sidebar */
+    .side{
+      background: linear-gradient(180deg, rgba(18,26,43,.96), rgba(15,23,48,.96));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
       display:flex;
       flex-direction:column;
+      min-height: 0;
     }
-
-    /* Top bar */
-    .topbar{
-      padding:22px 18px;
-      border-bottom:1px solid var(--border);
-      background: rgba(18,26,43,.75);
-      backdrop-filter: blur(8px);
+    .brand{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      margin-bottom: 12px;
     }
-    .topbar .row{ display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
-    .brand{ display:flex; gap:10px; align-items:center; }
-    .logo{
-      width:34px;height:34px;border-radius:10px;
-      background:linear-gradient(135deg,var(--blue),#22c55e);
-      box-shadow:0 10px 22px rgba(0,0,0,.35);
+    .brand .logo{
+      display:flex;align-items:center;gap:10px;
+      min-width:0;
     }
-    .title{ font-weight:900; letter-spacing:.2px; font-size:20px; }
-    .subtitle{ color:var(--muted); font-size:15px; margin-top:4px; }
-
-    .pills{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-    .pill{
-      display:inline-flex;
-      padding:10px 14px;
-      border-radius:999px;
-      border:1px solid var(--border);
-      background:var(--card2);
-      color:var(--text);
-      font-size:14px;
-      font-weight:700;
-    }
-
-    /* Content area */
-    .content{
-      flex:1;
+    .mark{
+      width: 38px; height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(37,99,235,1), rgba(168,85,247,1));
+      box-shadow: 0 10px 22px rgba(37,99,235,.25);
       display:grid;
-      grid-template-columns: 320px 1fr;
-      gap:14px;
-      padding:14px 18px;
-      overflow:hidden; /* important: no full-page scroll; inner panes scroll */
+      place-items:center;
+      font-weight:800;
     }
-
-    /* Left services menu */
-    .side{
-      border:1px solid var(--border);
-      background:var(--card);
-      border-radius:14px;
-      padding:12px;
+    .brand h1{
+      font-size: 14px;
+      margin:0;
+      letter-spacing:.2px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .pill{
+      font-size: 11px;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.03);
+      white-space:nowrap;
+    }
+    .slogans{
+      display:grid;
+      gap:8px;
+      margin: 10px 0 14px;
+    }
+    .slogan{
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .menuTitle{
+      margin: 12px 0 8px;
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing:.3px;
+      text-transform: uppercase;
+    }
+    .menu{
+      min-height:0;
       overflow:auto;
-      box-shadow: 0 10px 26px rgba(0,0,0,.25);
+      padding-right: 6px;
     }
-    .side h3{ margin:4px 0 10px; font-size:14px; }
-    .side .hint{ color:var(--muted); font-size:12px; margin-bottom:10px; }
-    .svc{
+    .menu::-webkit-scrollbar{width:8px}
+    .menu::-webkit-scrollbar-thumb{background: rgba(255,255,255,.10); border-radius: 8px}
+    .item{
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+    }
+    .item b{font-size: 13px}
+    .item span{
+      font-size: 11px;
+      color: var(--muted);
       border:1px solid var(--border);
-      background:var(--card2);
-      border-radius:12px;
-      padding:10px;
-      margin-bottom:10px;
+      border-radius: 999px;
+      padding: 4px 8px;
+      background: rgba(0,0,0,.12);
+      flex:0 0 auto;
     }
-    .svc .name{ font-weight:700; font-size:13px; }
-    .svc .desc{ color:var(--muted); font-size:12px; margin-top:4px; line-height:1.35; }
-    .tag{ display:inline-flex; margin-top:8px; font-size:11px; color:#b6c5df;
-      border:1px solid var(--border); background:rgba(37,99,235,.10);
-      padding:3px 8px; border-radius:999px;
+    .sideFooter{
+      margin-top:auto;
+      border-top: 1px solid rgba(255,255,255,.06);
+      padding-top: 12px;
+      display:flex;
+      justify-content:space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
     }
 
     /* Main */
     .main{
-      overflow:auto;
-      padding-right:4px;
-    }
-    .card{
-      border:1px solid var(--border);
-      background:var(--card);
-      border-radius:14px;
-      padding:14px;
-      box-shadow: 0 10px 26px rgba(0,0,0,.25);
-      margin-bottom:14px;
+      min-height:0;
+      display:grid;
+      grid-template-rows: auto 1fr;
+      gap: 16px;
     }
     .hero{
-      display:grid;
-      grid-template-columns: 1.1fr .9fr;
-      gap:14px;
-      align-items:start;
-    }
-    .hero h1{ margin:0; font-size:22px; }
-    .hero p{ margin:10px 0 0; color:var(--muted); line-height:1.5; }
-
-    .btnRow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
-    .btn{
-      border:1px solid #2f3c5a; background:#1a2440; color:var(--text);
-      padding:10px 12px; border-radius:12px; cursor:pointer;
-    }
-    .btn:hover{ background:#202c4f; }
-    .btn:disabled{ opacity:.55; cursor:not-allowed; }
-    .btnPrimary{ background:var(--blue); border-color:var(--blue); }
-    .btnPrimary:hover{ background:var(--blue2); }
-    .btnDanger{ background:var(--danger); border-color:var(--danger); }
-    .btnDanger:hover{ background:#991b1b; }
-
-    .input{
-      width:100%;
-      padding:10px 12px;
-      border-radius:12px;
-      border:1px solid #2f3c5a;
-      background:var(--card2);
-      color:var(--text);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono";
-    }
-    .muted{ color:var(--muted); }
-    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono"; }
-    .hr{ height:1px; background:var(--border); margin:12px 0; }
-
-    .mailItem{
-      border:1px solid var(--border);
-      background:var(--card2);
-      border-radius:12px;
-      padding:12px;
-      margin-bottom:10px;
-      cursor:pointer;
-    }
-    .mailItem:hover{ border-color:#3b4a6d; }
-
-    /* Toast */
-    .toast{
-      position:fixed;
-      right:18px;
-      top:18px;
-      background:var(--card2);
-      border:1px solid #2f3c5a;
-      padding:10px 12px;
-      border-radius:12px;
-      z-index:90;
-      box-shadow: 0 10px 26px rgba(0,0,0,.35);
-    }
-
-    /* Rate limit banner */
-    .rlBanner{
-      margin:14px 18px 0;
-      padding:10px 12px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.10);
-      background:#7f1d1d;
-      color:#fff;
-      font-size:13px;
-      font-weight:700;
-    }
-
-    /* Fixed bottom ad */
-    .adbar{
-      position:fixed;
-      left:0; right:0; bottom:0;
-      height:var(--adH);
-      border-top:1px solid var(--border);
-      background:#0a1020;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      z-index:60;
-    }
-    .adInner{
-      width:min(1100px, 100%);
-      padding:0 18px;
+      background: linear-gradient(180deg, rgba(18,26,43,.96), rgba(15,23,48,.96));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:12px;
-      color:var(--muted);
-      font-size:13px;
+      gap: 14px;
     }
-    .adBox{
-      flex:1;
-      height:64px;
-      border:1px dashed #2f3c5a;
-      border-radius:12px;
+    .heroLeft{
+      min-width:0;
+    }
+    .heroLeft h2{
+      margin:0 0 6px;
+      font-size: 16px;
+      letter-spacing:.2px;
+    }
+    .heroLeft p{
+      margin:0;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+    .btns{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
+    .btn{
+      appearance:none;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor:pointer;
+      transition: transform .05s ease, background .2s ease, border-color .2s ease;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      user-select:none;
+    }
+    .btn:hover{background: rgba(255,255,255,.07)}
+    .btn:active{transform: translateY(1px)}
+    .btnPrimary{
+      border-color: rgba(37,99,235,.55);
+      background: rgba(37,99,235,.18);
+    }
+    .btnPrimary:hover{background: rgba(37,99,235,.25)}
+    .btnDanger{
+      border-color: rgba(185,28,28,.55);
+      background: rgba(185,28,28,.14);
+    }
+
+    .grid{
+      min-height:0;
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 16px;
+    }
+    .card{
+      min-height:0;
+      background: linear-gradient(180deg, rgba(18,26,43,.96), rgba(15,23,48,.96));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      display:flex;
+      flex-direction:column;
+    }
+    .cardHeader{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .cardHeader h3{
+      margin:0;
+      font-size: 13px;
+      letter-spacing:.2px;
+    }
+    .meta{
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .mono{
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .1px;
+    }
+
+    .emailBox{
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(0,0,0,.14);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .emailText{
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    .toast{
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(var(--adH) + 16px);
+      background: rgba(0,0,0,.55);
+      border: 1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(10px);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      box-shadow: var(--shadow);
+      display:none;
+      z-index: 50;
+    }
+    .toast.show{display:block}
+
+    /* List */
+    .list{
+      min-height:0;
+      overflow:auto;
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 14px;
+    }
+    .row{
+      display:grid;
+      grid-template-columns: 140px 1fr;
+      gap: 12px;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      cursor:pointer;
+    }
+    .row:hover{background: rgba(255,255,255,.03)}
+    .row:last-child{border-bottom:none}
+    .row small{color: var(--muted)}
+    .row .subj{
+      font-weight: 800;
+      font-size: 12px;
+      margin-bottom: 2px;
+      overflow:hidden;
+      white-space:nowrap;
+      text-overflow:ellipsis;
+    }
+    .row .from{
+      font-size: 11px;
+      color: var(--muted);
+      overflow:hidden;
+      white-space:nowrap;
+      text-overflow:ellipsis;
+    }
+
+    /* Reader */
+    .reader{
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+    .readerTop{
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.14);
+      border-radius: 14px;
+      padding: 12px;
+      display:grid;
+      gap: 6px;
+    }
+    .readerTop .title{
+      font-weight: 900;
+      font-size: 13px;
+      line-height: 1.25;
+    }
+    .body{
+      min-height:0;
+      overflow:auto;
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(0,0,0,.14);
+      font-size: 12px;
+      color: rgba(230,237,247,.92);
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .empty{
+      border: 1px dashed rgba(255,255,255,.18);
+      border-radius: 14px;
+      padding: 14px;
+      color: var(--muted);
+      font-size: 12px;
+      background: rgba(255,255,255,.03);
+    }
+
+    /* Ad Banner */
+    .ad{
+      height: var(--adH);
+      border-top: 1px solid rgba(255,255,255,.10);
+      background: linear-gradient(90deg, rgba(37,99,235,.18), rgba(168,85,247,.14));
       display:flex;
       align-items:center;
       justify-content:center;
-      color:#8ea2c6;
-      background:rgba(18,26,43,.35);
+      gap: 14px;
+      padding: 0 18px;
+    }
+    .adBox{
+      width: min(1100px, 100%);
+      height: calc(var(--adH) - 22px);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.18);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 12px 14px;
+      gap: 12px;
+    }
+    .adBox b{font-size: 13px}
+    .adBox span{color: var(--muted); font-size: 12px}
+    .adBox a{
+      color: var(--text);
+      text-decoration:none;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 12px;
     }
 
+    /* Mobile */
     @media (max-width: 980px){
-      .content{ grid-template-columns: 1fr; }
-      .hero{ grid-template-columns: 1fr; }
+      body{overflow:auto}
+      .app{grid-template-columns: 1fr; height:auto}
+      .grid{grid-template-columns: 1fr}
+      .ad{position:sticky; bottom:0}
     }
   </style>
 </head>
 
-<body>
-  <div x-data="emailApp()" x-init="init()">
-    <template x-if="toast.show">
-      <div class="toast" x-text="toast.text"></div>
-    </template>
+<body x-data="emailApp()" x-init="init()">
+  <div class="app">
 
-    <div class="page">
-      <!-- Top bar -->
-      <div class="topbar">
-        <div class="row">
-          <div class="brand">
-            <div class="logo"></div>
-            <div>
-              <div class="title">AuthToolkit</div>
-              <div class="subtitle">Privacy-first disposable inbox for testing & automation</div>
-            </div>
-          </div>
-
-          <div class="pills">
-            <span class="pill">✅ Privacy</span>
-            <span class="pill">✅ No signup</span>
-            <span class="pill">✅ Testing-ready</span>
-            <span class="pill">✅ Micro-infrastructure</span>
+    <!-- Sidebar -->
+    <aside class="side">
+      <div class="brand">
+        <div class="logo">
+          <div class="mark">ATK</div>
+          <div style="min-width:0">
+            <h1>AuthToolkit</h1>
+            <div class="meta">Disposable inbox + micro-infra toolkit</div>
           </div>
         </div>
+        <div class="pill" x-text="statusText"></div>
       </div>
 
-      <!-- Rate limit banner (only shows when 429 happens) -->
-      <div class="rlBanner" x-show="isRateLimited" style="display:none;">
-        Rate limited (429). Retrying automatically…
+      <div class="slogans">
+        <div class="slogan"><b style="color:var(--text)">Privacy-first</b> • No signup needed • One click inbox</div>
+        <div class="slogan"><b style="color:var(--text)">Built for dev testing</b> • OTP flows • Webhooks • Sandboxes</div>
       </div>
 
-      <!-- Main content -->
-      <div class="content">
-        <!-- Left menu -->
-        <aside class="side">
-          <h3>Services (Roadmap)</h3>
-          <div class="hint">We’re building a suite of micro-infrastructure tools for QA, auth testing, and privacy. These are shown here as a roadmap.</div>
+      <div class="menuTitle">Roadmap</div>
+      <div class="menu">
+        <div class="item"><b>Text-to-Verify</b><span>soon</span></div>
+        <div class="item"><b>OTP Testing Sandbox</b><span>soon</span></div>
+        <div class="item"><b>Simple API Access</b><span>soon</span></div>
+        <div class="item"><b>Webhook Forwarding</b><span>soon</span></div>
+        <div class="item"><b>Dedicated Testing Inbox</b><span>soon</span></div>
+        <div class="item"><b>Temp Phone Number</b><span>soon</span></div>
+        <div class="item"><b>SMS OTP Capture</b><span>soon</span></div>
+        <div class="item"><b>Generate OTP</b><span>soon</span></div>
+        <div class="item"><b>Simulate Email Delivery</b><span>soon</span></div>
+        <div class="item"><b>Simulate SMS Delivery</b><span>soon</span></div>
+        <div class="item"><b>Image Metadata Remover</b><span>soon</span></div>
+      </div>
 
-          <div class="svc">
-            <div class="name">Text-to-Verify Service</div>
-            <div class="desc">Generate disposable inbox + verification flow for testing signup forms.</div>
-            <span class="tag">Coming soon</span>
-          </div>
+      <div class="sideFooter">
+        <div>Session: <span class="mono" x-text="sessionShort"></span></div>
+        <div>v<span x-text="build"></span></div>
+      </div>
+    </aside>
 
-          <div class="svc">
-            <div class="name">OTP Testing Sandbox</div>
-            <div class="desc">Simulate OTP verification, retries, throttling, and edge cases.</div>
-            <span class="tag">Coming soon</span>
-          </div>
+    <!-- Main -->
+    <main class="main">
 
-          <div class="svc">
-            <div class="name">Simple API Service</div>
-            <div class="desc">Minimal endpoints for inbox creation, fetch, retention policies.</div>
-            <span class="tag">Planned</span>
-          </div>
+      <section class="hero">
+        <div class="heroLeft">
+          <h2>One-click disposable inbox</h2>
+          <p>Use this inbox to receive test emails. Polls automatically. Click a message to read it.</p>
+        </div>
+        <div class="btns">
+          <button class="btn btnPrimary" @click="createInbox()">+ New Inbox</button>
+          <button class="btn" @click="refreshEmails()">Refresh</button>
+          <button class="btn btnDanger" @click="resetAll()">Reset</button>
+        </div>
+      </section>
 
-          <div class="svc">
-            <div class="name">Webhook Forwarding</div>
-            <div class="desc">Forward received email/SMS events to your staging webhooks.</div>
-            <span class="tag">Planned</span>
-          </div>
+      <section class="grid">
 
-          <div class="svc">
-            <div class="name">Dedicated Inbox for Testing</div>
-            <div class="desc">Stable inboxes with controls: retention, allowlist, API keys.</div>
-            <span class="tag">Planned</span>
-          </div>
-
-          <div class="svc">
-            <div class="name">Temp Phone Number</div>
-            <div class="desc">Disposable numbers for signup testing and QA flows.</div>
-            <span class="tag">Future</span>
-          </div>
-
-          <div class="svc">
-            <div class="name">SMS OTP Capture</div>
-            <div class="desc">Capture inbound OTPs and expose via API + webhook.</div>
-            <span class="tag">Future</span>
-          </div>
-
-          <div class="svc">
-            <div class="name">Generate OTP</div>
-            <div class="desc">Generate time-based OTPs and verification simulators.</div>
-            <span class="tag">Future</span>
-          </div>
-
-          <div class="svc">
-            <div class="name">Simulate Email Delivery</div>
-            <div class="desc">Deliverability simulations for staging and integration tests.</div>
-            <span class="tag">Future</span>
-          </div>
-
-          <div class="svc">
-            <div class="name">Simulate SMS Delivery</div>
-            <div class="desc">Simulated SMS provider responses and failure modes.</div>
-            <span class="tag">Future</span>
-          </div>
-
-          <div class="svc">
-            <div class="name">API Access Service</div>
-            <div class="desc">Keys, quotas, usage logs, and billing controls.</div>
-            <span class="tag">Future</span>
-          </div>
-
-          <div class="svc">
-            <div class="name">Metadata Remover for Images</div>
-            <div class="desc">Strip EXIF/location metadata before sharing.</div>
-            <span class="tag">Future</span>
-          </div>
-        </aside>
-
-        <!-- Right main -->
-        <main class="main">
-          <!-- Hero + Inbox panel -->
-          <div class="card hero">
-            <!-- Left: Hero + Mailbox summary + Latest message -->
+        <!-- Inbox + list -->
+        <div class="card">
+          <div class="cardHeader">
             <div>
-              <h1>Private, disposable inboxes — built for testing.</h1>
-
-              <p>
-                Use a temporary inbox to verify emails in staging, test signups, capture OTP links, and
-                avoid leaking your real address. We don’t ask for your name. We don’t need your account.
-                Create an inbox, copy it, and receive mail instantly.
-              </p>
-
-              <div class="btnRow">
-                <button class="btn btnPrimary" @click="createInbox()">Create Inbox</button>
-                <button class="btn" @click="fetchEmails()" :disabled="!inboxId">Refresh</button>
-                <button class="btn" @click="copyBodyLatest()" :disabled="!emails || emails.length===0">Copy Body</button>
-                <button class="btn btnDanger" @click="clearSession()" :disabled="!inboxId">Clear</button>
-              </div>
-
-              <div class="muted" style="font-size:12px; margin-top:10px;">
-                Tip: This landing page is intentionally simple and fast. The services menu is our roadmap.
-              </div>
-
-              <!-- Mailbox summary -->
-              <div style="margin-top:12px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
-                <div style="font-weight:900;">Mailbox</div>
-                <div class="pill"><span x-text="emails.length"></span> messages</div>
-              </div>
-              <div class="hr"></div>
-
-              <!-- Latest message only (or empty state) -->
-              <template x-if="!inboxId">
-                <div class="muted" style="margin-top:6px;">Create an inbox first to start receiving mail.</div>
-              </template>
-
-              <template x-if="inboxId">
-                <div style="margin-top:6px;">
-                  <template x-if="emails.length === 0">
-                    <div class="muted">No emails yet. Send a message to your temp email address.</div>
-                  </template>
-
-                  <template x-if="emails.length > 0">
-                    <div class="mailItem" style="cursor:default;">
-                      <div style="display:flex; justify-content:space-between; gap:12px;">
-                        <div style="font-weight:900;" x-text="emails[0].subject || '(no subject)'"></div>
-                        <div class="muted mono" style="font-size:12px;" x-text="formatTime(emails[0].created_at)"></div>
-                      </div>
-                      <div class="muted" style="font-size:13px; margin-top:6px;">
-                        From: <span class="mono" x-text="emails[0].from_address || '-'"></span>
-                      </div>
-                      <div class="hr"></div>
-
-                      <!-- Raw body (safe) -->
-                      <pre class="mono" style="
-                        white-space:pre-wrap;
-                        font-size:12px;
-                        line-height:1.4;
-                        max-height:360px;
-                        overflow:auto;
-                        padding:10px;
-                        border:1px solid var(--border);
-                        border-radius:12px;
-                        background:rgba(0,0,0,.15);
-                      " x-text="emails[0].body || '(no body)'"></pre>
-                    </div>
-                  </template>
-                </div>
-              </template>
+              <h3>Your inbox</h3>
+              <div class="meta">Click “New Inbox” if you want a fresh address.</div>
             </div>
+            <div class="meta">Emails: <b x-text="emails.length"></b></div>
+          </div>
 
-            <!-- Right: Inbox box -->
-            <div class="card" style="margin:0; background:var(--card2);">
-              <div style="font-weight:900; margin-bottom:8px; font-size:16px;">Your Temp Email Address</div>
-
-              <template x-if="!inboxId">
-                <div class="muted" style="font-size:13px;">
-                  No inbox yet. Click <b>Create Inbox</b> to generate an address.
-                </div>
-              </template>
-
-              <template x-if="inboxId">
-                <div>
-                  <input class="input" readonly :value="currentEmail" />
-
-                  <div style="margin-top:14px; display:flex; flex-direction:column; gap:14px;">
-                    <button class="btn btnPrimary"
-                      style="height:56px; font-size:16px; font-weight:900;"
-                      @click="copyEmail()">
-                      Copy Email Address
-                    </button>
-
-                    <div style="
-                      height:96px;
-                      border-radius:16px;
-                      border:1px solid var(--border);
-                      background:linear-gradient(135deg, #1a2440, #0f1730);
-                      display:flex;
-                      align-items:center;
-                      justify-content:center;
-                      flex-direction:column;
-                    ">
-                      <div class="muted" style="font-size:13px; margin-bottom:4px;">
-                        Expires In
-                      </div>
-                      <div class="mono" style="font-size:34px; font-weight:900; letter-spacing:1px;">
-                        <span x-text="countdown"></span>
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
-              </template>
+          <div class="emailBox">
+            <div class="emailText mono" x-text="email_address || '— no inbox yet —'"></div>
+            <div style="display:flex; gap:8px; flex:0 0 auto;">
+              <button class="btn" style="padding:8px 10px" @click="copyEmail()">Copy</button>
+              <button class="btn" style="padding:8px 10px" @click="extendInbox()">Extend</button>
             </div>
           </div>
-        </main>
-      </div>
-    </div>
 
-    <!-- Fixed ad banner (always visible) -->
-    <div class="adbar">
-      <div class="adInner">
-        <div class="muted">Ad</div>
-        <div class="adBox">1&quot; Fixed Banner Area (Google Ads later)</div>
-        <div class="muted">Never disappears</div>
+          <div class="list" x-show="emails.length > 0">
+            <template x-for="e in emails" :key="e.id">
+              <div class="row" @click="openEmail(e)">
+                <div>
+                  <div class="subj" x-text="formatTime(e.created_at)"></div>
+                  <small x-text="e.subject || '(no subject)'"></small>
+                </div>
+                <div>
+                  <div class="subj" x-text="e.subject || '(no subject)'"></div>
+                  <div class="from" x-text="e.from_address || ''"></div>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <div class="empty" x-show="emails.length === 0">
+            No emails yet. Send something to <span class="mono" x-text="email_address || '(create an inbox first)'"></span>.
+          </div>
+        </div>
+
+        <!-- Reader -->
+        <div class="card reader">
+          <div class="cardHeader">
+            <div>
+              <h3>Message</h3>
+              <div class="meta">Select an email from the list.</div>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn" style="padding:8px 10px" @click="copyBody()">Copy Body</button>
+            </div>
+          </div>
+
+          <div class="readerTop" x-show="currentEmail">
+            <div class="title" x-text="currentEmail?.subject || '(no subject)'"></div>
+            <div class="meta">From: <span class="mono" x-text="currentEmail?.from_address || ''"></span></div>
+            <div class="meta">At: <span class="mono" x-text="formatISO(currentEmail?.created_at)"></span></div>
+          </div>
+
+          <div class="empty" x-show="!currentEmail">
+            No email selected.
+          </div>
+
+          <div class="body mono" x-show="currentEmail" x-text="currentEmail?.body || ''"></div>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" :class="toast.show ? 'show' : ''" x-text="toast.text"></div>
+
+  <!-- Fixed 1" ad banner -->
+  <div class="ad">
+    <div class="adBox">
+      <div>
+        <b>Ad space</b> <span>— reserved for sponsor / affiliate later</span>
       </div>
+      <a href="javascript:void(0)">Contact to advertise</a>
     </div>
   </div>
 </body>
