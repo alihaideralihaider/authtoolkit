@@ -1,201 +1,272 @@
-// docs/main.js
-console.log("✅ main.js loaded");
+(() => {
+  // ====== CONFIG (PUT YOUR REAL VALUES HERE) ======
+  // NOTE: For now we keep it simple: browser calls edge functions directly.
+const SUPABASE_URL = "https://jmnpfdqxzilbobffqhda.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptbnBmZHF4emlsYm9iZmZxaGRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAwNzc5MDAsImV4cCI6MjA4NTY1MzkwMH0.nR_yqz66PnXGZVm4s-b4UzooKPzCaIwwEdYkuN9XLVo";
 
-// ✅ Put your SUPABASE ANON key here (NOT service_role)
-const SUPABASE_ANON_KEY = "PASTE_SUPABASE_ANON_KEY_HERE";
+  // Your edge function names (as deployed)
+  const FN_CREATE = "create-inbox";
+  const FN_GET = "get-emails";
+  const FN_EXTEND = "extend-inbox"; // optional; if you don't have it, button will toast an error
 
-function emailApp() {
-  return {
-    SUPABASE_URL: "https://jmnpfdqxzilbobffqhda.supabase.co",
-    CREATE_INBOX_PATH: "/functions/v1/create-inbox",
-    GET_EMAILS_PATH: "/functions/v1/get-emails",
+  const LS_KEY = "atk_inbox_v1";
 
-    inboxId: "",
-    sessionId: "",
-    currentEmail: "",
-    expiresAt: "",
-    emails: [],
-    countdown: "--:--",
+  function nowISO() { return new Date().toISOString(); }
 
-    toast: { show: false, text: "" },
-    isRateLimited: false,
+  function saveState(state) {
+    localStorage.setItem(LS_KEY, JSON.stringify(state));
+  }
 
-    _pollTimer: null,
-    _countdownTimer: null,
-    _toastTimer: null,
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }
 
-    init() {
-      console.log("✅ init() ran, Alpine scope ready");
+  async function callFn(name, { method = "GET", query = {}, body = null } = {}) {
+    const qs = new URLSearchParams(query).toString();
+    const url = `${SUPABASE_URL}/functions/v1/${name}${qs ? `?${qs}` : ""}`;
 
-      const saved = this._safeJsonParse(localStorage.getItem("atk_state"));
-      if (saved?.inboxId && saved?.sessionId) {
-        this.inboxId = saved.inboxId;
-        this.sessionId = saved.sessionId;
-        this.currentEmail = saved.currentEmail || "";
-        this.expiresAt = saved.expiresAt || "";
-        this._startPolling();
-        this.fetchEmails(true);
-      }
+    const headers = {
+      "apikey": SUPABASE_ANON_KEY,
+      "authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "content-type": "application/json",
+    };
 
-      this._startCountdown();
-      this._toast("UI loaded");
-    },
+    const res = await fetch(url, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : null,
+    });
 
-    _safeJsonParse(v) { try { return JSON.parse(v); } catch { return null; } },
+    const text = await res.text();
+    let data;
+    try { data = text ? JSON.parse(text) : null; }
+    catch { data = { raw: text }; }
 
-    _saveState() {
-      localStorage.setItem("atk_state", JSON.stringify({
-        inboxId: this.inboxId,
-        sessionId: this.sessionId,
-        currentEmail: this.currentEmail,
-        expiresAt: this.expiresAt
-      }));
-    },
+    if (!res.ok) {
+      const msg = data?.error?.message || data?.message || data?.error || JSON.stringify(data);
+      throw new Error(`${res.status} ${res.statusText}: ${msg}`);
+    }
+    return data;
+  }
 
-    _toast(msg, ms = 2200) {
-      this.toast = { show: true, text: msg };
-      clearTimeout(this._toastTimer);
-      this._toastTimer = setTimeout(() => (this.toast.show = false), ms);
-    },
+  function shortId(s) {
+    if (!s) return "—";
+    return String(s).slice(0, 8);
+  }
 
-    _authHeaders(json = false) {
-      const h = {
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-      };
-      if (json) h["content-type"] = "application/json";
-      return h;
-    },
+  function copyToClipboard(text) {
+    if (!text) return Promise.resolve(false);
+    return navigator.clipboard.writeText(text).then(() => true).catch(() => false);
+  }
 
-    _startPolling() {
-      if (this._pollTimer) return;
-      this._pollTimer = setInterval(() => this.fetchEmails(false), 4000);
-    },
+  // ====== ALPINE COMPONENT ======
+  window.emailApp = function emailApp() {
+    return {
+      build: "200",
+      statusText: "Ready",
+      toast: { show: false, text: "" },
 
-    _startCountdown() {
-      if (this._countdownTimer) return;
-      this._countdownTimer = setInterval(() => this._updateCountdown(), 1000);
-      this._updateCountdown();
-    },
+      session_id: null,
+      inbox_id: null,
+      email_address: null,
+      expires_at: null,
 
-    _updateCountdown() {
-      if (!this.expiresAt) { this.countdown = "--:--"; return; }
-      const exp = new Date(this.expiresAt).getTime();
-      if (Number.isNaN(exp)) { this.countdown = "--:--"; return; }
-      const diff = exp - Date.now();
-      if (diff <= 0) { this.countdown = "00:00"; return; }
-      const s = Math.floor(diff / 1000);
-      const mm = String(Math.floor(s / 60)).padStart(2, "0");
-      const ss = String(s % 60).padStart(2, "0");
-      this.countdown = `${mm}:${ss}`;
-    },
+      emails: [],
+      currentEmail: null,
 
-    formatTime(ts) {
-      if (!ts) return "—";
-      const d = new Date(ts);
-      if (Number.isNaN(d.getTime())) return "—";
-      return d.toLocaleString();
-    },
+      pollTimer: null,
+      pollEveryMs: 5000,
 
-    async createInbox() {
-      console.log("✅ createInbox() clicked");
+      get sessionShort() { return shortId(this.session_id); },
 
-      if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes("PASTE_")) {
-        this._toast("Missing SUPABASE_ANON_KEY in main.js", 3500);
-        return;
-      }
+      toastShow(text) {
+        this.toast.text = text;
+        this.toast.show = true;
+        setTimeout(() => (this.toast.show = false), 1400);
+      },
 
-      try {
-        const url = this.SUPABASE_URL + this.CREATE_INBOX_PATH;
-        const res = await fetch(url, {
-          method: "POST",
-          headers: this._authHeaders(true),
-          body: JSON.stringify({})
+      formatTime(iso) {
+        if (!iso) return "";
+        const d = new Date(iso);
+        return d.toLocaleString();
+      },
+
+      formatISO(iso) {
+        if (!iso) return "";
+        try { return new Date(iso).toLocaleString(); } catch { return String(iso); }
+      },
+
+      setStatus(s) { this.statusText = s; },
+
+      hydrateFromStorage() {
+        const st = loadState();
+        if (!st) return;
+
+        this.session_id = st.session_id || null;
+        this.inbox_id = st.inbox_id || null;
+        this.email_address = st.email_address || null;
+        this.expires_at = st.expires_at || null;
+      },
+
+      persist() {
+        saveState({
+          session_id: this.session_id,
+          inbox_id: this.inbox_id,
+          email_address: this.email_address,
+          expires_at: this.expires_at,
+          saved_at: nowISO(),
         });
+      },
 
-        const data = await res.json().catch(() => ({}));
-        console.log("create-inbox status:", res.status, data);
+      startPolling() {
+        if (this.pollTimer) clearInterval(this.pollTimer);
+        this.pollTimer = setInterval(() => {
+          if (this.inbox_id && this.session_id) this.refreshEmails(false);
+        }, this.pollEveryMs);
+      },
 
-        if (!res.ok) {
-          this._toast(data?.error?.message || data?.error || data?.message || `HTTP ${res.status}`, 4000);
+      stopPolling() {
+        if (this.pollTimer) clearInterval(this.pollTimer);
+        this.pollTimer = null;
+      },
+
+      async init() {
+        this.hydrateFromStorage();
+        this.startPolling();
+
+        // If we already have an inbox, fetch emails immediately
+        if (this.inbox_id && this.session_id) {
+          this.refreshEmails(false);
+        }
+      },
+
+      async createInbox() {
+        try {
+          this.setStatus("Creating…");
+          this.currentEmail = null;
+          this.emails = [];
+
+          // Keep it super simple: create-inbox returns {session_id,inbox_id,email_address,expires_at}
+          const data = await callFn(FN_CREATE, { method: "POST", body: {} });
+
+          this.session_id = data.session_id;
+          this.inbox_id = data.inbox_id;
+          this.email_address = data.email_address;
+          this.expires_at = data.expires_at;
+
+          this.persist();
+          this.setStatus("Inbox ready");
+          this.toastShow("Inbox created");
+
+          // Fetch messages
+          await this.refreshEmails(false);
+        } catch (e) {
+          console.error("createInbox failed:", e);
+          this.setStatus("Error");
+          this.toastShow("Create failed (see console)");
+        }
+      },
+
+      async refreshEmails(showToast = true) {
+        if (!this.inbox_id || !this.session_id) {
+          if (showToast) this.toastShow("Create an inbox first");
           return;
         }
 
-        this.sessionId = data.session_id || "";
-        this.inboxId = data.inbox_id || "";
-        this.currentEmail = data.email_address || "";
-        this.expiresAt = data.expires_at || "";
+        try {
+          this.setStatus("Syncing…");
+          const data = await callFn(FN_GET, {
+            method: "GET",
+            query: { inbox_id: this.inbox_id, session_id: this.session_id },
+          });
+
+          // Expecting { emails: [...] } OR [...] — handle both
+          const list = Array.isArray(data) ? data : (data.emails || []);
+          this.emails = list;
+
+          // Keep currentEmail object fresh if still exists
+          if (this.currentEmail?.id) {
+            const fresh = this.emails.find(x => x.id === this.currentEmail.id);
+            if (fresh) this.currentEmail = fresh;
+          }
+
+          this.setStatus("Ready");
+          if (showToast) this.toastShow("Refreshed");
+        } catch (e) {
+          console.error("get-emails failed:", e);
+          this.setStatus("Error");
+          if (showToast) this.toastShow("Refresh failed (see console)");
+        }
+      },
+
+      openEmail(e) {
+        this.currentEmail = e;
+      },
+
+      async copyEmail() {
+        if (!this.email_address) return this.toastShow("No inbox yet");
+        const ok = await copyToClipboard(this.email_address);
+        this.toastShow(ok ? "Copied" : "Copy failed");
+      },
+
+      async copyBody() {
+        if (!this.currentEmail?.body) return this.toastShow("No body");
+        const ok = await copyToClipboard(this.currentEmail.body);
+        this.toastShow(ok ? "Body copied" : "Copy failed");
+      },
+
+      async extendInbox() {
+        // Optional: only works if you deployed extend-inbox.
+        if (!this.inbox_id || !this.session_id) return this.toastShow("No inbox yet");
+        try {
+          this.setStatus("Extending…");
+          const data = await callFn(FN_EXTEND, {
+            method: "POST",
+            body: { inbox_id: this.inbox_id, session_id: this.session_id },
+          });
+          if (data?.expires_at) this.expires_at = data.expires_at;
+          this.persist();
+          this.setStatus("Ready");
+          this.toastShow("Extended");
+        } catch (e) {
+          console.error("extend failed:", e);
+          this.setStatus("Ready");
+          this.toastShow("Extend not available");
+        }
+      },
+
+      resetAll() {
+        this.stopPolling();
+        localStorage.removeItem(LS_KEY);
+
+        this.session_id = null;
+        this.inbox_id = null;
+        this.email_address = null;
+        this.expires_at = null;
+
         this.emails = [];
+        this.currentEmail = null;
 
-        this._saveState();
-        this._toast("Inbox created");
-        await this.fetchEmails(true);
-
-      } catch (e) {
-        console.error(e);
-        this._toast(e?.message || "Create inbox failed", 3500);
-      }
-    },
-
-    async fetchEmails(force = false) {
-      if (!this.inboxId || !this.sessionId) return;
-
-      try {
-        const qs = new URLSearchParams({
-          inbox_id: this.inboxId,
-          session_id: this.sessionId,
-          t: String(Date.now())
-        });
-
-        const url = this.SUPABASE_URL + this.GET_EMAILS_PATH + "?" + qs.toString();
-        const res = await fetch(url, { headers: this._authHeaders(false) });
-        const data = await res.json().catch(() => ({}));
-
-        if (!res.ok) return;
-
-        const list = Array.isArray(data?.emails) ? data.emails : [];
-        list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        this.emails = list;
-
-      } catch (e) {
-        console.error(e);
-        if (force) this._toast(e?.message || "Fetch failed", 3000);
-      }
-    },
-
-    async copyEmail() {
-      if (!this.currentEmail) return;
-      try { await navigator.clipboard.writeText(this.currentEmail); this._toast("Email copied"); }
-      catch { this._toast("Copy failed"); }
-    },
-
-    async copyBodyLatest() {
-      if (!this.emails?.length) return;
-      try { await navigator.clipboard.writeText(this.emails[0]?.body || ""); this._toast("Body copied"); }
-      catch { this._toast("Copy failed"); }
-    },
-
-    clearSession() {
-      this.inboxId = "";
-      this.sessionId = "";
-      this.currentEmail = "";
-      this.expiresAt = "";
-      this.emails = [];
-      this.countdown = "--:--";
-      localStorage.removeItem("atk_state");
-      this._toast("Cleared");
-    }
+        this.setStatus("Reset");
+        this.toastShow("Reset done");
+        this.startPolling();
+      },
+    };
   };
-}
 
-// ✅ Make global (so x-data="emailApp()" always works)
-window.emailApp = emailApp;
-console.log("✅ window.emailApp ready");
-
-// ✅ Also register for x-data="emailApp" if Alpine catches it
-document.addEventListener("alpine:init", () => {
-  Alpine.data("emailApp", emailApp);
-  console.log("✅ Alpine.data('emailApp') registered");
-});
-
-console.log("✅ main.js finished loading");
+  // ====== Compatibility helpers (so Alpine expressions never break) ======
+  // If you ever call createInbox() from raw HTML onclick or old Alpine snippets, this keeps it working.
+  window.createInbox = () => {
+    try {
+      const root = document.querySelector("[x-data]");
+      const x = root && root.__x;
+      const state = x && x.$data;
+      if (state && typeof state.createInbox === "function") return state.createInbox();
+    } catch {}
+  };
+})();
