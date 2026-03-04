@@ -14,7 +14,7 @@
   <!-- ✅ Then your app (cache-bust so Pages doesn’t serve old JS) -->
   <script defer src="./main.js?v=20260303-fullui-1"></script>
 
-  <script defer src="./main.js?v=fullui-99"></script>
+  <script defer src="./main.js?v=fullui-101"></script>
 
   <style>
     :root{
@@ -227,7 +227,7 @@
 </head>
 
 <body>
-  <div x-data="emailApp" x-init="init()">
+  <div x-data="emailApp()" x-init="init()">
     <template x-if="toast.show">
       <div class="toast" x-text="toast.text"></div>
     </template>
