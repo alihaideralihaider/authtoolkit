@@ -1,6 +1,7 @@
 // docs/main.js
 // MUST be in the same folder as docs/index.html
 
+console.log("✅ main.js file started loading");
 function emailApp() {
   return {
     // Config
@@ -224,3 +225,5 @@ window.emailApp = emailApp;
 
 // Debug proof it loaded
 console.log("✅ docs/main.js loaded, window.emailApp is ready");
+window.emailApp = emailApp;
+console.log("✅ main.js finished loading. typeof window.emailApp =", typeof window.emailApp);
