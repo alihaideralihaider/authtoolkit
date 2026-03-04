@@ -1,7 +1,9 @@
 // docs/main.js
 console.log("✅ main.js loaded");
 
-// Alpine component
+// ✅ Put your SUPABASE ANON key here (NOT service_role)
+const SUPABASE_ANON_KEY = "PASTE_SUPABASE_ANON_KEY_HERE";
+
 function emailApp() {
   return {
     SUPABASE_URL: "https://jmnpfdqxzilbobffqhda.supabase.co",
@@ -17,13 +19,14 @@ function emailApp() {
 
     toast: { show: false, text: "" },
     isRateLimited: false,
-    rateLimitUntil: 0,
 
     _pollTimer: null,
     _countdownTimer: null,
     _toastTimer: null,
 
     init() {
+      console.log("✅ init() ran, Alpine scope ready");
+
       const saved = this._safeJsonParse(localStorage.getItem("atk_state"));
       if (saved?.inboxId && saved?.sessionId) {
         this.inboxId = saved.inboxId;
@@ -33,6 +36,7 @@ function emailApp() {
         this._startPolling();
         this.fetchEmails(true);
       }
+
       this._startCountdown();
       this._toast("UI loaded");
     },
@@ -48,26 +52,24 @@ function emailApp() {
       }));
     },
 
-    _toast(msg, ms = 2000) {
+    _toast(msg, ms = 2200) {
       this.toast = { show: true, text: msg };
       clearTimeout(this._toastTimer);
       this._toastTimer = setTimeout(() => (this.toast.show = false), ms);
     },
 
-    formatTime(ts) {
-      if (!ts) return "—";
-      const d = new Date(ts);
-      if (Number.isNaN(d.getTime())) return "—";
-      return d.toLocaleString();
+    _authHeaders(json = false) {
+      const h = {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      };
+      if (json) h["content-type"] = "application/json";
+      return h;
     },
 
     _startPolling() {
       if (this._pollTimer) return;
       this._pollTimer = setInterval(() => this.fetchEmails(false), 4000);
-    },
-
-    _stopPolling() {
-      if (this._pollTimer) { clearInterval(this._pollTimer); this._pollTimer = null; }
     },
 
     _startCountdown() {
@@ -88,59 +90,55 @@ function emailApp() {
       this.countdown = `${mm}:${ss}`;
     },
 
-    clearSession() {
-      this.inboxId = "";
-      this.sessionId = "";
-      this.currentEmail = "";
-      this.expiresAt = "";
-      this.emails = [];
-      this.countdown = "--:--";
-      this.isRateLimited = false;
-      localStorage.removeItem("atk_state");
-      this._stopPolling();
-      this._toast("Cleared");
+    formatTime(ts) {
+      if (!ts) return "—";
+      const d = new Date(ts);
+      if (Number.isNaN(d.getTime())) return "—";
+      return d.toLocaleString();
     },
 
     async createInbox() {
+      console.log("✅ createInbox() clicked");
+
+      if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes("PASTE_")) {
+        this._toast("Missing SUPABASE_ANON_KEY in main.js", 3500);
+        return;
+      }
+
       try {
         const url = this.SUPABASE_URL + this.CREATE_INBOX_PATH;
         const res = await fetch(url, {
           method: "POST",
-          headers: { "content-type": "application/json" },
+          headers: this._authHeaders(true),
           body: JSON.stringify({})
         });
 
         const data = await res.json().catch(() => ({}));
-
-        if (res.status === 429) {
-          this.isRateLimited = true;
-          this._toast("429 rate limited. Try again soon.");
-          return;
-        }
+        console.log("create-inbox status:", res.status, data);
 
         if (!res.ok) {
-          throw new Error(data?.error?.message || data?.error || data?.message || `HTTP ${res.status}`);
+          this._toast(data?.error?.message || data?.error || data?.message || `HTTP ${res.status}`, 4000);
+          return;
         }
 
         this.sessionId = data.session_id || "";
         this.inboxId = data.inbox_id || "";
         this.currentEmail = data.email_address || "";
         this.expiresAt = data.expires_at || "";
-
         this.emails = [];
+
         this._saveState();
         this._toast("Inbox created");
-        this._startPolling();
         await this.fetchEmails(true);
+
       } catch (e) {
         console.error(e);
-        this._toast(e?.message || "Create inbox failed", 3000);
+        this._toast(e?.message || "Create inbox failed", 3500);
       }
     },
 
     async fetchEmails(force = false) {
       if (!this.inboxId || !this.sessionId) return;
-      if (this.isRateLimited && !force) return;
 
       try {
         const qs = new URLSearchParams({
@@ -150,22 +148,15 @@ function emailApp() {
         });
 
         const url = this.SUPABASE_URL + this.GET_EMAILS_PATH + "?" + qs.toString();
-        const res = await fetch(url);
-
+        const res = await fetch(url, { headers: this._authHeaders(false) });
         const data = await res.json().catch(() => ({}));
 
-        if (res.status === 429) {
-          this.isRateLimited = true;
-          return;
-        }
-
-        if (!res.ok) {
-          throw new Error(data?.error?.message || data?.error || data?.message || `HTTP ${res.status}`);
-        }
+        if (!res.ok) return;
 
         const list = Array.isArray(data?.emails) ? data.emails : [];
         list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         this.emails = list;
+
       } catch (e) {
         console.error(e);
         if (force) this._toast(e?.message || "Fetch failed", 3000);
@@ -182,11 +173,26 @@ function emailApp() {
       if (!this.emails?.length) return;
       try { await navigator.clipboard.writeText(this.emails[0]?.body || ""); this._toast("Body copied"); }
       catch { this._toast("Copy failed"); }
+    },
+
+    clearSession() {
+      this.inboxId = "";
+      this.sessionId = "";
+      this.currentEmail = "";
+      this.expiresAt = "";
+      this.emails = [];
+      this.countdown = "--:--";
+      localStorage.removeItem("atk_state");
+      this._toast("Cleared");
     }
   };
 }
 
-// Fix A registration for x-data="emailApp"
+// ✅ Make global (so x-data="emailApp()" always works)
+window.emailApp = emailApp;
+console.log("✅ window.emailApp ready");
+
+// ✅ Also register for x-data="emailApp" if Alpine catches it
 document.addEventListener("alpine:init", () => {
   Alpine.data("emailApp", emailApp);
   console.log("✅ Alpine.data('emailApp') registered");
