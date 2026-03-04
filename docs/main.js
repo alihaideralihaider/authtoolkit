@@ -1,6 +1,11 @@
 // docs/main.js
 // MUST be in the same folder as docs/index.html
+console.log("✅ main.js loaded");
 
+document.addEventListener("alpine:init", () => {
+  Alpine.data("emailApp", emailApp);
+  console.log("✅ Alpine.data('emailApp') registered");
+});
 console.log("✅ main.js file started loading");
 function emailApp() {
   return {
