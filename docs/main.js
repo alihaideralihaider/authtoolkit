@@ -1,15 +1,54 @@
 // docs/main.js
 console.log("✅ main.js loaded");
 
+// ========= CONFIG =========
+// 1) Put your Supabase anon key here:
+const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
+
+// 2) Your project URL is already correct:
+const SUPABASE_URL = "https://jmnpfdqxzilbobffqhda.supabase.co";
+
+// Edge functions
+const FN_CREATE_INBOX = "create-inbox";
+const FN_GET_EMAILS = "get-emails";
+
+// Polling interval
+const POLL_MS = 5000;
+
+// ========= HELPERS =========
+function nowMs() {
+  return Date.now();
+}
+
+async function safeJson(res) {
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { raw: text };
+  }
+}
+
+function fnUrl(name) {
+  return `${SUPABASE_URL}/functions/v1/${name}`;
+}
+
+function hasKey() {
+  return !!SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.includes("PASTE_YOUR");
+}
+
+function authHeaders(json = false) {
+  const h = {
+    apikey: SUPABASE_ANON_KEY,
+    authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+  };
+  if (json) h["content-type"] = "application/json";
+  return h;
+}
+
+// ========= ALPINE COMPONENT FACTORY =========
 function emailApp() {
   return {
-    // Config
-    SUPABASE_URL: "https://jmnpfdqxzilbobffqhda.supabase.co",
-    SUPABASE_ANON_KEY: "PASTE_YOUR_SUPABASE_ANON_KEY_HERE",
-
-    CREATE_INBOX_PATH: "/functions/v1/create-inbox",
-    GET_EMAILS_PATH: "/functions/v1/get-emails",
-
     // State expected by your index.html
     inboxId: "",
     sessionId: "",
@@ -28,6 +67,12 @@ function emailApp() {
     _toastTimer: null,
 
     init() {
+      if (!hasKey()) {
+        console.warn("Missing SUPABASE_ANON_KEY in docs/main.js");
+        this._toast("Set SUPABASE_ANON_KEY in main.js", 3500);
+      }
+
+      // Restore saved state
       const saved = this._safeJsonParse(localStorage.getItem("atk_state"));
       if (saved?.inboxId && saved?.sessionId) {
         this.inboxId = saved.inboxId;
@@ -35,38 +80,50 @@ function emailApp() {
         this.currentEmail = saved.currentEmail || "";
         this.expiresAt = saved.expiresAt || "";
         this.emails = Array.isArray(saved.emails) ? saved.emails : [];
-        this._startPolling();
-        this.fetchEmails(true);
       }
 
       this._startCountdown();
+      this._startPolling();
+
+      if (this.inboxId) this.fetchEmails(true);
+
       this._toast("UI loaded");
     },
 
+    // ---------- Storage ----------
     _safeJsonParse(v) {
-      try { return JSON.parse(v); } catch { return null; }
+      try {
+        return JSON.parse(v);
+      } catch {
+        return null;
+      }
     },
 
     _saveState() {
-      localStorage.setItem("atk_state", JSON.stringify({
-        inboxId: this.inboxId,
-        sessionId: this.sessionId,
-        currentEmail: this.currentEmail,
-        expiresAt: this.expiresAt,
-        emails: this.emails,
-      }));
+      localStorage.setItem(
+        "atk_state",
+        JSON.stringify({
+          inboxId: this.inboxId,
+          sessionId: this.sessionId,
+          currentEmail: this.currentEmail,
+          expiresAt: this.expiresAt,
+          emails: this.emails,
+        })
+      );
     },
 
     _clearState() {
       localStorage.removeItem("atk_state");
     },
 
-    _toast(msg) {
+    // ---------- Toast ----------
+    _toast(msg, ms = 2000) {
       this.toast = { show: true, text: msg };
       clearTimeout(this._toastTimer);
-      this._toastTimer = setTimeout(() => (this.toast.show = false), 2000);
+      this._toastTimer = setTimeout(() => (this.toast.show = false), ms);
     },
 
+    // ---------- Time formatting ----------
     formatTime(ts) {
       if (!ts) return "—";
       const d = new Date(ts);
@@ -74,9 +131,10 @@ function emailApp() {
       return d.toLocaleString();
     },
 
+    // ---------- Polling ----------
     _startPolling() {
       if (this._pollTimer) return;
-      this._pollTimer = setInterval(() => this.fetchEmails(false), 4000);
+      this._pollTimer = setInterval(() => this.fetchEmails(false), POLL_MS);
     },
 
     _stopPolling() {
@@ -86,6 +144,7 @@ function emailApp() {
       }
     },
 
+    // ---------- Countdown ----------
     _startCountdown() {
       if (this._countdownTimer) return;
       this._countdownTimer = setInterval(() => this._updateCountdown(), 1000);
@@ -93,12 +152,21 @@ function emailApp() {
     },
 
     _updateCountdown() {
-      if (!this.expiresAt) { this.countdown = "--:--"; return; }
+      if (!this.expiresAt) {
+        this.countdown = "--:--";
+        return;
+      }
       const exp = new Date(this.expiresAt).getTime();
-      if (Number.isNaN(exp)) { this.countdown = "--:--"; return; }
+      if (Number.isNaN(exp)) {
+        this.countdown = "--:--";
+        return;
+      }
 
-      const diff = exp - Date.now();
-      if (diff <= 0) { this.countdown = "00:00"; return; }
+      const diff = exp - nowMs();
+      if (diff <= 0) {
+        this.countdown = "00:00";
+        return;
+      }
 
       const s = Math.floor(diff / 1000);
       const mm = String(Math.floor(s / 60)).padStart(2, "0");
@@ -106,39 +174,53 @@ function emailApp() {
       this.countdown = `${mm}:${ss}`;
     },
 
+    // ---------- Rate limit ----------
     _handle429(res) {
       const retryAfter = Number(res.headers.get("retry-after") || "8");
       const waitMs = Math.max(3, retryAfter) * 1000;
+
       this.isRateLimited = true;
-      this.rateLimitUntil = Date.now() + waitMs;
-      this._toast(`429 rate limited. Retrying in ${Math.ceil(waitMs/1000)}s…`);
+      this.rateLimitUntil = nowMs() + waitMs;
+
+      this._toast(`Rate limited (429). Retrying in ${Math.ceil(waitMs / 1000)}s…`, 2200);
 
       setTimeout(() => {
-        if (Date.now() >= this.rateLimitUntil) {
+        if (nowMs() >= this.rateLimitUntil) {
           this.isRateLimited = false;
         }
       }, waitMs + 50);
     },
 
-    _headers(json = false) {
-      const h = {
-        apikey: this.SUPABASE_ANON_KEY,
-        authorization: `Bearer ${this.SUPABASE_ANON_KEY}`,
-      };
-      if (json) h["content-type"] = "application/json";
-      return h;
+    // ---------- Actions ----------
+    clearSession() {
+      this.inboxId = "";
+      this.sessionId = "";
+      this.currentEmail = "";
+      this.expiresAt = "";
+      this.emails = [];
+      this.countdown = "--:--";
+
+      this.isRateLimited = false;
+      this.rateLimitUntil = 0;
+
+      this._clearState();
+      this._stopPolling();
+
+      this._toast("Cleared");
     },
 
     async createInbox() {
+      if (!hasKey()) {
+        this._toast("Missing Supabase anon key in main.js", 3000);
+        return;
+      }
+
+      if (this.isRateLimited && nowMs() < this.rateLimitUntil) return;
+
       try {
-        // If rate limited, don’t spam
-        if (this.isRateLimited && Date.now() < this.rateLimitUntil) return;
-
-        const url = this.SUPABASE_URL + this.CREATE_INBOX_PATH;
-
-        const res = await fetch(url, {
+        const res = await fetch(fnUrl(FN_CREATE_INBOX), {
           method: "POST",
-          headers: this._headers(true),
+          headers: authHeaders(true),
           body: JSON.stringify({}),
         });
 
@@ -147,12 +229,15 @@ function emailApp() {
           return;
         }
 
-        const data = await res.json().catch(() => ({}));
-
         if (!res.ok) {
-          const msg = data?.error?.message || data?.error || data?.message || `HTTP ${res.status}`;
-          throw new Error(`create-inbox failed: ${msg}`);
+          const j = await safeJson(res);
+          console.error("create-inbox failed:", res.status, j);
+          const msg = j?.error?.message || j?.error || j?.message || `HTTP ${res.status}`;
+          this._toast(`Create inbox failed: ${msg}`, 3500);
+          return;
         }
+
+        const data = await res.json();
 
         this.sessionId = data.session_id || "";
         this.inboxId = data.inbox_id || "";
@@ -160,57 +245,61 @@ function emailApp() {
         this.expiresAt = data.expires_at || "";
 
         if (!this.sessionId || !this.inboxId || !this.currentEmail) {
-          throw new Error("create-inbox returned missing session_id/inbox_id/email_address");
+          console.error("Bad create-inbox payload:", data);
+          this._toast("Create inbox returned incomplete data", 3500);
+          return;
         }
 
         this.emails = [];
         this._saveState();
         this._toast("Inbox created");
-        this._startPolling();
         await this.fetchEmails(true);
-
       } catch (e) {
         console.error(e);
-        this._toast(e?.message || "Create inbox failed");
+        this._toast(e?.message || "Create inbox failed", 3500);
       }
     },
 
     async fetchEmails(force = false) {
       if (!this.inboxId || !this.sessionId) return;
+      if (!hasKey()) return;
 
-      if (!force && this.isRateLimited && Date.now() < this.rateLimitUntil) return;
+      if (!force && this.isRateLimited && nowMs() < this.rateLimitUntil) return;
 
       try {
-        const qs = new URLSearchParams({
-          inbox_id: this.inboxId,
-          session_id: this.sessionId,
-          t: String(Date.now()),
-        });
+        const url = new URL(fnUrl(FN_GET_EMAILS));
+        url.searchParams.set("inbox_id", this.inboxId);
+        url.searchParams.set("session_id", this.sessionId);
+        url.searchParams.set("t", String(nowMs())); // cache buster
 
-        const url = this.SUPABASE_URL + this.GET_EMAILS_PATH + "?" + qs.toString();
-        const res = await fetch(url, { headers: this._headers(false) });
+        const res = await fetch(url.toString(), { headers: authHeaders(false) });
 
         if (res.status === 429) {
           this._handle429(res);
           return;
         }
 
-        const data = await res.json().catch(() => ({}));
-
         if (!res.ok) {
-          const msg = data?.error?.message || data?.error || data?.message || `HTTP ${res.status}`;
-          throw new Error(`get-emails failed: ${msg}`);
+          const j = await safeJson(res);
+          console.error("get-emails failed:", res.status, j);
+          if (force) {
+            const msg = j?.error?.message || j?.error || j?.message || `HTTP ${res.status}`;
+            this._toast(`Fetch failed: ${msg}`, 3000);
+          }
+          return;
         }
 
-        // Accept either {emails:[...]} OR [...]
+        const data = await res.json();
+
+        // Accept either {emails:[...]} OR raw array
         const list = Array.isArray(data) ? data : (Array.isArray(data?.emails) ? data.emails : []);
+
         list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         this.emails = list;
         this._saveState();
-
       } catch (e) {
         console.error(e);
-        if (force) this._toast(e?.message || "Fetch failed");
+        if (force) this._toast(e?.message || "Fetch failed", 3000);
       }
     },
 
@@ -226,7 +315,11 @@ function emailApp() {
 
     async copyBodyLatest() {
       if (!this.emails?.length) return;
-      const body = (this.emails[0]?.body || "(no body)");
+      const body = this.emails[0]?.body || "";
+      if (!body) {
+        this._toast("No body to copy");
+        return;
+      }
       try {
         await navigator.clipboard.writeText(body);
         this._toast("Body copied");
@@ -234,24 +327,10 @@ function emailApp() {
         this._toast("Copy failed");
       }
     },
-
-    clearSession() {
-      this.inboxId = "";
-      this.sessionId = "";
-      this.currentEmail = "";
-      this.expiresAt = "";
-      this.emails = [];
-      this.countdown = "--:--";
-      this.isRateLimited = false;
-      this.rateLimitUntil = 0;
-      this._clearState();
-      this._stopPolling();
-      this._toast("Cleared");
-    },
   };
 }
 
-// Register component name used by x-data="emailApp"
+// ========= FIX A: Register component name for x-data="emailApp" =========
 document.addEventListener("alpine:init", () => {
   Alpine.data("emailApp", emailApp);
   console.log("✅ Alpine.data('emailApp') registered");
