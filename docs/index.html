@@ -224,8 +224,10 @@
   </style>
 </head>
 
-<body x-data="emailApp()">
-  <template x-if="toast.show">
+<body>
+  <body>
+  <div id="app" x-data="emailApp()">
+    <template x-if="toast.show">
       <div class="toast" x-text="toast.text"></div>
     </template>
 
@@ -507,5 +509,6 @@
         <div class="muted">Never disappears</div>
       </div>
     </div>
+ </div>
 </body>
 </html>
