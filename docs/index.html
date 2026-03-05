@@ -225,7 +225,7 @@
 </head>
 
 <body>
-  <div x-data="emailApp()" x-init="init()">
+  <div id="app" x-data="emailApp()">
     <template x-if="toast.show">
       <div class="toast" x-text="toast.text"></div>
     </template>
@@ -357,13 +357,13 @@
               </p>
 
               <div class="btnRow">
-                <button class="btn btnPrimary" @click="createInbox()">Create Inbox</button>
+  <button class="btn btnPrimary" type="button"
+    @click="console.log('Create clicked', typeof createInbox, typeof emailApp); createInbox()">
+    Create Inbox
+  </button>
 
-                <button class="btn"
-                  @click="refreshEmails(true)"
-                  :disabled="!inbox_id || !session_id || isExpired">
-                  Refresh
-                </button>
+  <button class="btn" @click="refreshEmails(true)" :disabled="!inbox_id || !session_id || isExpired">Refresh</button>
+                
 
                 <!-- This UI only renders the latest email body; we ensure currentEmail is set to latest -->
                 <button class="btn"
@@ -509,5 +509,17 @@
       </div>
     </div>
   </div>
+  <script>
+  // Make initialization deterministic and visible
+  document.addEventListener('alpine:init', () => {
+    try {
+      const el = document.getElementById('app');
+      const data = el && el.__x && el.__x.$data;
+      if (data && typeof data.init === 'function') data.init();
+    } catch (e) {
+      console.error("ATK init failed:", e);
+    }
+  });
+</script>
 </body>
 </html>
