@@ -350,32 +350,25 @@
                   <template x-if="emails.length === 0">
                     <div class="muted">No emails yet. Send a message to your temp email address.</div>
                   </template>
-
-                  <template x-if="emails.length > 0">
-                    <div class="mailItem" style="cursor:default;">
-                      <div style="display:flex; justify-content:space-between; gap:12px;">
-                        <div style="font-weight:900;" x-text="emails[0].subject || '(no subject)'"></div>
-                        <div class="muted mono" style="font-size:12px;" x-text="formatTime(emails[0].created_at)"></div>
+                  
+                <div class="email-list">
+                  <template x-for="email in emails" :key="email.id">
+                    <div class="email-card">
+                      <div style="font-size:13px;color:var(--muted)">
+                        From: <span x-text="email.from_address"></span>
                       </div>
-                      <div class="muted" style="font-size:13px; margin-top:6px;">
-                        From: <span class="mono" x-text="emails[0].from_address || '-'"></span>
+                
+                      <div style="font-weight:600;margin-top:4px">
+                        <span x-text="email.subject || '(no subject)'"></span>
                       </div>
-                      <div class="hr"></div>
-
-                      <pre class="mono" style="
-                        white-space:pre-wrap;
-                        font-size:12px;
-                        line-height:1.4;
-                        max-height:360px;
-                        overflow:auto;
-                        padding:10px;
-                        border:1px solid var(--border);
-                        border-radius:12px;
-                        background:rgba(0,0,0,.15);
-                      " x-text="emails[0].body || '(no body)'"></pre>
+                
+                      <div style="font-size:12px;color:var(--muted);margin-top:4px">
+                        <span x-text="new Date(email.created_at).toLocaleString()"></span>
+                      </div>
                     </div>
                   </template>
-                </div>
+                </div>  
+              </div>
               </template>
             </div>
 
