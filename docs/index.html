@@ -224,9 +224,8 @@
   </style>
 </head>
 
-<body>
-  <div id="app" x-data="emailApp()">
-    <template x-if="toast.show">
+<body x-data="emailApp()" x-init="init()">
+  <template x-if="toast.show">
       <div class="toast" x-text="toast.text"></div>
     </template>
 
@@ -508,18 +507,5 @@
         <div class="muted">Never disappears</div>
       </div>
     </div>
-  </div>
-  <script>
-  // Make initialization deterministic and visible
-  document.addEventListener('alpine:init', () => {
-    try {
-      const el = document.getElementById('app');
-      const data = el && el.__x && el.__x.$data;
-      if (data && typeof data.init === 'function') data.init();
-    } catch (e) {
-      console.error("ATK init failed:", e);
-    }
-  });
-</script>
 </body>
 </html>
