@@ -12,7 +12,7 @@
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
   <!-- ✅ Then your app (cache-bust so Pages doesn’t serve old JS) -->
-  <script defer src="./main.js?v=20260304-ux-restore-1"></script>
+  <script defer src="./main.js?v=20260304-ux-restore-2"></script>
 
   <style>
     :root{
@@ -224,8 +224,8 @@
   </style>
 </head>
 
-  <body>
-  <div id="app" x-data="emailApp()">
+<body>
+  <div id="app" x-data="emailApp()" x-init="init()">
     <template x-if="toast.show">
       <div class="toast" x-text="toast.text"></div>
     </template>
@@ -250,106 +250,43 @@
           </div>
         </div>
 
-        <!-- The bold “we don’t store your data” line you mentioned -->
         <div class="subtitle" style="margin-top:10px;">
           <span style="font-weight:900; color:var(--text);">We don’t store your data.</span>
           Inboxes auto-expire. Built for OTPs, QA, and throwaway signups.
         </div>
       </div>
 
-      <!-- Expired banner (driven by main.js isExpired flag) -->
+      <!-- Expired banner -->
       <div class="expBanner" x-show="isExpired" style="display:none;">
         Inbox expired. Create a new inbox to continue.
       </div>
 
-      <!-- Main content -->
       <div class="content">
         <!-- Left menu -->
         <aside class="side">
           <h3>Services (Roadmap)</h3>
           <div class="hint">We’re building a suite of micro-infrastructure tools for QA, auth testing, and privacy. These are shown here as a roadmap.</div>
 
-          <div class="svc">
-            <div class="name">Text-to-Verify Service</div>
-            <div class="desc">Generate disposable inbox + verification flow for testing signup forms.</div>
-            <span class="tag">Coming soon</span>
-          </div>
-
-          <div class="svc">
-            <div class="name">OTP Testing Sandbox</div>
-            <div class="desc">Simulate OTP verification, retries, throttling, and edge cases.</div>
-            <span class="tag">Coming soon</span>
-          </div>
-
-          <div class="svc">
-            <div class="name">Simple API Service</div>
-            <div class="desc">Minimal endpoints for inbox creation, fetch, retention policies.</div>
-            <span class="tag">Planned</span>
-          </div>
-
-          <div class="svc">
-            <div class="name">Webhook Forwarding</div>
-            <div class="desc">Forward received email/SMS events to your staging webhooks.</div>
-            <span class="tag">Planned</span>
-          </div>
-
-          <div class="svc">
-            <div class="name">Dedicated Inbox for Testing</div>
-            <div class="desc">Stable inboxes with controls: retention, allowlist, API keys.</div>
-            <span class="tag">Planned</span>
-          </div>
-
-          <div class="svc">
-            <div class="name">Temp Phone Number</div>
-            <div class="desc">Disposable numbers for signup testing and QA flows.</div>
-            <span class="tag">Future</span>
-          </div>
-
-          <div class="svc">
-            <div class="name">SMS OTP Capture</div>
-            <div class="desc">Capture inbound OTPs and expose via API + webhook.</div>
-            <span class="tag">Future</span>
-          </div>
-
-          <div class="svc">
-            <div class="name">Generate OTP</div>
-            <div class="desc">Generate time-based OTPs and verification simulators.</div>
-            <span class="tag">Future</span>
-          </div>
-
-          <div class="svc">
-            <div class="name">Simulate Email Delivery</div>
-            <div class="desc">Deliverability simulations for staging and integration tests.</div>
-            <span class="tag">Future</span>
-          </div>
-
-          <div class="svc">
-            <div class="name">Simulate SMS Delivery</div>
-            <div class="desc">Simulated SMS provider responses and failure modes.</div>
-            <span class="tag">Future</span>
-          </div>
-
-          <div class="svc">
-            <div class="name">API Access Service</div>
-            <div class="desc">Keys, quotas, usage logs, and billing controls.</div>
-            <span class="tag">Future</span>
-          </div>
-
-          <div class="svc">
-            <div class="name">Metadata Remover for Images</div>
-            <div class="desc">Strip EXIF/location metadata before sharing.</div>
-            <span class="tag">Future</span>
-          </div>
+          <div class="svc"><div class="name">Text-to-Verify Service</div><div class="desc">Generate disposable inbox + verification flow for testing signup forms.</div><span class="tag">Coming soon</span></div>
+          <div class="svc"><div class="name">OTP Testing Sandbox</div><div class="desc">Simulate OTP verification, retries, throttling, and edge cases.</div><span class="tag">Coming soon</span></div>
+          <div class="svc"><div class="name">Simple API Service</div><div class="desc">Minimal endpoints for inbox creation, fetch, retention policies.</div><span class="tag">Planned</span></div>
+          <div class="svc"><div class="name">Webhook Forwarding</div><div class="desc">Forward received email/SMS events to your staging webhooks.</div><span class="tag">Planned</span></div>
+          <div class="svc"><div class="name">Dedicated Inbox for Testing</div><div class="desc">Stable inboxes with controls: retention, allowlist, API keys.</div><span class="tag">Planned</span></div>
+          <div class="svc"><div class="name">Temp Phone Number</div><div class="desc">Disposable numbers for signup testing and QA flows.</div><span class="tag">Future</span></div>
+          <div class="svc"><div class="name">SMS OTP Capture</div><div class="desc">Capture inbound OTPs and expose via API + webhook.</div><span class="tag">Future</span></div>
+          <div class="svc"><div class="name">Generate OTP</div><div class="desc">Generate time-based OTPs and verification simulators.</div><span class="tag">Future</span></div>
+          <div class="svc"><div class="name">Simulate Email Delivery</div><div class="desc">Deliverability simulations for staging and integration tests.</div><span class="tag">Future</span></div>
+          <div class="svc"><div class="name">Simulate SMS Delivery</div><div class="desc">Simulated SMS provider responses and failure modes.</div><span class="tag">Future</span></div>
+          <div class="svc"><div class="name">API Access Service</div><div class="desc">Keys, quotas, usage logs, and billing controls.</div><span class="tag">Future</span></div>
+          <div class="svc"><div class="name">Metadata Remover for Images</div><div class="desc">Strip EXIF/location metadata before sharing.</div><span class="tag">Future</span></div>
         </aside>
 
         <!-- Right main -->
         <main class="main">
-          <!-- Hero + Inbox panel -->
           <div class="card hero">
-            <!-- Left: Hero + Mailbox summary + Latest message -->
+            <!-- Left -->
             <div>
               <h1>Private, disposable inboxes — built for testing.</h1>
-
               <p>
                 Use a temporary inbox to verify emails in staging, test signups, capture OTP links, and
                 avoid leaking your real address. We don’t ask for your name. We don’t need your account.
@@ -357,22 +294,21 @@
               </p>
 
               <div class="btnRow">
-  <button class="btn btnPrimary" type="button"
-    @click="console.log('Create clicked', typeof createInbox, typeof emailApp); createInbox()">
-    Create Inbox
-  </button>
+                <button class="btn btnPrimary" type="button" @click="createInbox()">Create Inbox</button>
 
-  <button class="btn" @click="refreshEmails(true)" :disabled="!inbox_id || !session_id || isExpired">Refresh</button>
-                
+                <button class="btn" type="button"
+                  @click="refreshEmails(true)"
+                  :disabled="!inbox_id || !session_id || isExpired">
+                  Refresh
+                </button>
 
-                <!-- This UI only renders the latest email body; we ensure currentEmail is set to latest -->
-                <button class="btn"
+                <button class="btn" type="button"
                   @click="openEmail(emails[0]); copyBody()"
                   :disabled="!emails || emails.length===0">
                   Copy Body
                 </button>
 
-                <button class="btn btnDanger"
+                <button class="btn btnDanger" type="button"
                   @click="resetAll()"
                   :disabled="!inbox_id && !session_id && !email_address">
                   Clear
@@ -383,14 +319,12 @@
                 Tip: This landing page is intentionally simple and fast. The services menu is our roadmap.
               </div>
 
-              <!-- Mailbox summary -->
               <div style="margin-top:12px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
                 <div style="font-weight:900;">Mailbox</div>
                 <div class="pill"><span x-text="emails.length"></span> messages</div>
               </div>
               <div class="hr"></div>
 
-              <!-- Latest message only (or empty state) -->
               <template x-if="!inbox_id || !session_id">
                 <div class="muted" style="margin-top:6px;">Create an inbox first to start receiving mail.</div>
               </template>
@@ -429,7 +363,7 @@
               </template>
             </div>
 
-            <!-- Right: Inbox box -->
+            <!-- Right -->
             <div class="card" style="margin:0; background:var(--card2);">
               <div style="font-weight:900; margin-bottom:8px; font-size:16px;">Your Temp Email Address</div>
 
@@ -444,7 +378,7 @@
                   <input class="input" readonly :value="email_address" />
 
                   <div style="margin-top:14px; display:flex; flex-direction:column; gap:14px;">
-                    <button class="btn btnPrimary"
+                    <button class="btn btnPrimary" type="button"
                       style="height:56px; font-size:16px; font-weight:900;"
                       @click="copyEmail()">
                       Copy Email Address
@@ -464,7 +398,6 @@
                         Expires In
                       </div>
 
-                      <!-- Countdown computed from expires_at (no JS changes needed) -->
                       <div class="mono" style="font-size:34px; font-weight:900; letter-spacing:1px;">
                         <span x-text="
                           expires_at
@@ -495,6 +428,7 @@
                 </div>
               </template>
             </div>
+
           </div>
         </main>
       </div>
@@ -508,6 +442,7 @@
         <div class="muted">Never disappears</div>
       </div>
     </div>
- </div>
+
+  </div>
 </body>
 </html>
