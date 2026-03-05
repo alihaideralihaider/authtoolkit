@@ -221,7 +221,23 @@
       .content{ grid-template-columns: 1fr; }
       .hero{ grid-template-columns: 1fr; }
     }
-  </style>
+    .email-list{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-top:12px;
+  max-height:320px;
+  overflow-y:auto;
+    }
+
+.email-card{
+  background:var(--card2);
+  border:1px solid var(--border);
+  padding:12px;
+  border-radius:8px;
+  }   
+  
+</style>
 </head>
 
 <body>
