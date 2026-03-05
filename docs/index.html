@@ -8,12 +8,12 @@
   <!-- Stop favicon.ico 404 -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🛡️</text></svg>">
 
-  <!-- ✅ Alpine FIRST -->
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<!-- ✅ App FIRST (defines window.emailApp) -->
+<script defer src="./main.js?v=20260305-1"></script>
 
-  <!-- ✅ Then your app (cache-bust so Pages doesn’t serve old JS) -->
-  <script defer src="./main.js?v=20260304-ux-restore-2"></script>
-
+<!-- ✅ Alpine SECOND (boots after emailApp exists) -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  
   <style>
     :root{
       --bg:#0b1220;
