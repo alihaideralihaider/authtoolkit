@@ -122,7 +122,9 @@
 
       emails: [],
       currentEmail: null,
-
+      loadingEmails: false,
+      hydrated: false,
+      
       pollTimer: null,
       pollEveryMs: 5000,
 
