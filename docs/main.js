@@ -236,20 +236,20 @@
 
       async init() {
         this.hydrateFromStorage();
-
+        this.startTimer();
+      
         // If expired on load, DO NOT poll
         if (this.inbox_id && this.session_id) {
           if (this.isExpired || this.isInboxExpiredNow()) {
             this.markExpired(false);
             return;
           }
-
+      
           // Fetch immediately and then start polling
           await this.refreshEmails(false);
           this.startPolling();
         }
       },
-
       async createInbox() {
         try {
           this.setStatus("Creating…");
