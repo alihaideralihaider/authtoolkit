@@ -341,7 +341,6 @@
         }
 
         try {
-          //this.setStatus("Syncing…");
           const data = await callFn(FN_GET, {
             method: "GET",
             query: { inbox_id: this.inbox_id, session_id: this.session_id },
