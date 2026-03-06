@@ -109,6 +109,7 @@
     return {
       build: "201",
       statusText: "Ready",
+      countdownText: "—",
       toast: { show: false, text: "" },
 
       session_id: null,
@@ -294,7 +295,7 @@
 
           startTimer() {
         if (!this.expiryMs) {
-          this.statusText = "—";
+          this.countdownText = "—";
           return;
         }
       
@@ -307,7 +308,7 @@
       
           if (remaining <= 0) {
             clearInterval(this.timerInterval);
-            this.statusText = "00:00";
+            this.countdownText = "00:00";
             this.markExpired(false);
             return;
           }
@@ -322,7 +323,7 @@
           const mms = String(mm).padStart(2, "0");
           const ss = String(s).padStart(2, "0");
       
-          this.statusText = h > 0 ? `${hh}:${mms}:${ss}` : `${mms}:${ss}`;
+          this.countdownText = h > 0 ? `${hh}:${mms}:${ss}` : `${mms}:${ss}`;
         };
       
         updateTimer();
