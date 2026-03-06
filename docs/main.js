@@ -328,7 +328,7 @@
         this.timerInterval = setInterval(updateTimer, 1000);
       },
 
-      async refreshEmails(showToast = true) {
+      async refreshEmails(showToast = true, showLoading = false) {
         if (!this.inbox_id || !this.session_id) {
           if (showToast) this.toastShow("Create an inbox first");
           return;
