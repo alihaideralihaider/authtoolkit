@@ -380,10 +380,14 @@
               <template x-if="inbox_id && session_id">
   <div style="margin-top:6px;">
 
-    <template x-if="emails.length === 0">
-      <div class="muted">No emails yet. Send a message to your temp email address.</div>
-    </template>
-
+                <template x-if="loadingEmails">
+              <div class="muted">Syncing inbox...</div>
+            </template>
+            
+            <template x-if="hydrated && !loadingEmails && emails.length === 0">
+              <div class="muted">No emails yet. Send a message to your temp email address.</div>
+            </template>    
+    
     <template x-if="emails.length > 0">
       <div class="email-list">
         <template x-for="email in emails" :key="email.id">
@@ -403,8 +407,6 @@
         </template>
       </div>
     </template>
-
-    <div class="muted" x-text="currentEmail ? 'email selected' : 'no email selected'"></div>
 
     <template x-if="currentEmail">
       <div class="email-body">
