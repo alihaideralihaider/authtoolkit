@@ -378,55 +378,56 @@
               </template>
 
               <template x-if="inbox_id && session_id">
-                <div style="margin-top:6px;">
-                  <template x-if="!loadingEmails && emails.length === 0">
-                    <div class="muted">No emails yet. Send a message to your temp email address.</div>
-                  </template> 
-                  <template x-if="loadingEmails">
-                    <div class="muted">Syncing inbox…</div>
-                  </template>
-                  
-                <div class="email-list">
-                  <template x-for="email in emails" :key="email.id">
-                    <div class="email-card">
-                      <div style="font-size:13px;color:var(--muted)">
-                        From: <span x-text="email.from_address"></span>
-                      </div>
-                
-                      <div style="font-weight:600;margin-top:4px">
-                        <span x-text="email.subject || '(no subject)'"></span>
-                      </div>
-                
-                      <div style="font-size:12px;color:var(--muted);margin-top:4px">
-                        <span x-text="new Date(email.created_at).toLocaleString()"></span>
-                      </div>
-                    </div>
-                  </template>
-                </div>  
-<div class="email-body" x-show="currentEmail" x-transition>
+  <div style="margin-top:6px;">
 
-  <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-    <div>
-      <div style="font-weight:700" x-text="currentEmail?.subject || '(no subject)'"></div>
-      <div class="muted" style="margin-top:4px;">
-        From: <span x-text="currentEmail?.from_address"></span>
-        • <span x-text="new Date(currentEmail?.created_at).toLocaleString()"></span>
+    <template x-if="emails.length === 0">
+      <div class="muted">No emails yet. Send a message to your temp email address.</div>
+    </template>
+
+    <template x-if="emails.length > 0">
+      <div class="email-list">
+        <template x-for="email in emails" :key="email.id">
+          <div class="email-card" style="cursor:pointer" @click="currentEmail = email">
+            <div style="font-size:13px;color:var(--muted)">
+              From: <span x-text="email.from_address"></span>
+            </div>
+
+            <div style="font-weight:600;margin-top:4px">
+              <span x-text="email.subject || '(no subject)'"></span>
+            </div>
+
+            <div style="font-size:12px;color:var(--muted);margin-top:4px">
+              <span x-text="new Date(email.created_at).toLocaleString()"></span>
+            </div>
+          </div>
+        </template>
       </div>
-    </div>
+    </template>
 
-    <button class="btn" type="button" @click="currentEmail = null">Close</button>
+    <div class="muted" x-text="currentEmail ? 'email selected' : 'no email selected'"></div>
+
+    <template x-if="currentEmail">
+      <div class="email-body">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+          <div>
+            <div style="font-weight:700" x-text="currentEmail.subject || '(no subject)'"></div>
+            <div class="muted" style="margin-top:4px;">
+              From: <span x-text="currentEmail.from_address"></span>
+              • <span x-text="new Date(currentEmail.created_at).toLocaleString()"></span>
+            </div>
+          </div>
+
+          <button class="btn" type="button" @click="currentEmail = null">Close</button>
+        </div>
+
+        <div class="hr" style="margin:10px 0;"></div>
+
+        <pre style="white-space:pre-wrap; margin:0;" x-text="currentEmail.body || '(empty body)'"></pre>
+      </div>
+    </template>
+
   </div>
-
-  <div class="hr" style="margin:10px 0;"></div>
-
-  <pre style="white-space:pre-wrap; margin:0;"
-       x-text="currentEmail?.body || 'Loading body… (or empty)'">
-  </pre>
-
-</div>
-                
-                </div>
-              </template>
+</template>
             </div>
 
             <!-- Right -->
