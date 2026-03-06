@@ -114,6 +114,38 @@
       box-shadow: 0 10px 26px rgba(0,0,0,.25);
       margin-bottom:14px;
     }
+   @media (max-width: 980px){
+  .content{ grid-template-columns: 1fr; }
+  .hero{ grid-template-columns: 1fr; }
+}
+
+.email-list{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-top:12px;
+  max-height:320px;
+  overflow-y:auto;
+}
+
+.email-card{
+  background:var(--card2);
+  border:1px solid var(--border);
+  padding:12px;
+  border-radius:8px;
+}
+
+.email-body{
+  margin-top:12px;
+  padding:12px;
+  border:1px solid var(--border);
+  background:var(--card);
+  border-radius:10px;
+  max-height:260px;
+  overflow:auto;
+}
+
+    
     .hero{
       display:grid;
       grid-template-columns: 1.1fr .9fr;
@@ -347,8 +379,11 @@
 
               <template x-if="inbox_id && session_id">
                 <div style="margin-top:6px;">
-                  <template x-if="emails.length === 0">
+                  <template x-if="!loadingEmails && emails.length === 0">
                     <div class="muted">No emails yet. Send a message to your temp email address.</div>
+                  </template> 
+                  <template x-if="loadingEmails">
+                    <div class="muted">Syncing inbox…</div>
                   </template>
                   
                 <div class="email-list">
@@ -368,7 +403,29 @@
                     </div>
                   </template>
                 </div>  
-              </div>
+<div class="email-body" x-show="currentEmail" x-transition>
+
+  <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+    <div>
+      <div style="font-weight:700" x-text="currentEmail?.subject || '(no subject)'"></div>
+      <div class="muted" style="margin-top:4px;">
+        From: <span x-text="currentEmail?.from_address"></span>
+        • <span x-text="new Date(currentEmail?.created_at).toLocaleString()"></span>
+      </div>
+    </div>
+
+    <button class="btn" type="button" @click="currentEmail = null">Close</button>
+  </div>
+
+  <div class="hr" style="margin:10px 0;"></div>
+
+  <pre style="white-space:pre-wrap; margin:0;"
+       x-text="currentEmail?.body || 'Loading body… (or empty)'">
+  </pre>
+
+</div>
+                
+                </div>
               </template>
             </div>
 
