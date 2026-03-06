@@ -124,7 +124,8 @@
       currentEmail: null,
       loadingEmails: false,
       hydrated: false,
-      
+      timerInterval: null,
+
       pollTimer: null,
       pollEveryMs: 5000,
 
@@ -288,6 +289,30 @@
           this.setStatus("Error");
           this.toastShow("Create failed (see console)");
         }
+      },
+
+      startTimer() {
+        if (!this.expiryMs) return;
+
+        if (this.timerInterval) {
+          clearInterval(this.timerInterval);
+        }
+
+        this.timerInterval = setInterval(() => {
+          const remaining = this.expiryMs - Date.now();
+
+          if (remaining <= 0) {
+            clearInterval(this.timerInterval);
+            this.markExpired(false);
+            return;
+          }
+
+          const sec = Math.floor(remaining / 1000);
+          const m = Math.floor(sec / 60);
+          const s = sec % 60;
+
+          this.statusText = `${m}:${s.toString().padStart(2, "0")}`;
+        }, 1000);
       },
 
       async refreshEmails(showToast = true) {
