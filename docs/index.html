@@ -468,24 +468,7 @@
                       </div>
 
                       <div class="mono" style="font-size:34px; font-weight:900; letter-spacing:1px;">
-                        <span x-text="
-                          expires_at
-                            ? (() => {
-                                const ms = Date.parse(expires_at) - Date.now();
-                                if (!Number.isFinite(ms)) return '—';
-                                if (ms <= 0) return '00:00';
-                                const s = Math.floor(ms / 1000);
-                                const m = Math.floor(s / 60);
-                                const r = s % 60;
-                                const h = Math.floor(m / 60);
-                                const mm = m % 60;
-                                const hh = String(h).padStart(2,'0');
-                                const mms = String(mm).padStart(2,'0');
-                                const rs = String(r).padStart(2,'0');
-                                return (h > 0 ? (hh + ':') : '') + mms + ':' + rs;
-                              })()
-                            : '—'
-                        "></span>
+                          <span x-text="statusText"></span>
                       </div>
 
                       <div class="muted" style="font-size:12px; margin-top:6px;">
@@ -502,7 +485,7 @@
         </main>
       </div>
     </div>
-
+x
     <!-- Fixed ad banner (always visible) -->
     <div class="adbar">
       <div class="adInner">
