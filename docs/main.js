@@ -291,28 +291,41 @@
         }
       },
 
-      startTimer() {
-        if (!this.expiryMs) return;
-
+          startTimer() {
+        if (!this.expiryMs) {
+          this.statusText = "—";
+          return;
+        }
+      
         if (this.timerInterval) {
           clearInterval(this.timerInterval);
         }
-
-        this.timerInterval = setInterval(() => {
+      
+        const updateTimer = () => {
           const remaining = this.expiryMs - Date.now();
-
+      
           if (remaining <= 0) {
             clearInterval(this.timerInterval);
+            this.statusText = "00:00";
             this.markExpired(false);
             return;
           }
-
+      
           const sec = Math.floor(remaining / 1000);
           const m = Math.floor(sec / 60);
           const s = sec % 60;
-
-          this.statusText = `${m}:${s.toString().padStart(2, "0")}`;
-        }, 1000);
+          const h = Math.floor(m / 60);
+          const mm = m % 60;
+      
+          const hh = String(h).padStart(2, "0");
+          const mms = String(mm).padStart(2, "0");
+          const ss = String(s).padStart(2, "0");
+      
+          this.statusText = h > 0 ? `${hh}:${mms}:${ss}` : `${mms}:${ss}`;
+        };
+      
+        updateTimer();
+        this.timerInterval = setInterval(updateTimer, 1000);
       },
 
       async refreshEmails(showToast = true) {
