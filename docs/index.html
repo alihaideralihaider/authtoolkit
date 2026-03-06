@@ -379,11 +379,7 @@
 
    <template x-if="inbox_id && session_id">
                   <div style="margin-top:6px;">
-
-                <template x-if="loadingEmails && emails.length === 0">
-                  <div class="muted">Syncing inbox...</div>
-              </template> 
-    
+                    
             <template x-if="hydrated && !loadingEmails && emails.length === 0">
               <div class="muted">No emails yet. Send a message to your temp email address.</div>
             </template>    
