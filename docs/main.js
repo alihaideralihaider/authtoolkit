@@ -149,6 +149,7 @@
         if (!iso) return "";
         try {
           return new Date(iso).toLocaleString();
+          
         } catch {
           return String(iso);
         }
@@ -340,7 +341,7 @@
         }
 
         try {
-          this.setStatus("Syncing…");
+          //this.setStatus("Syncing…");
           const data = await callFn(FN_GET, {
             method: "GET",
             query: { inbox_id: this.inbox_id, session_id: this.session_id },
