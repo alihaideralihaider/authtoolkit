@@ -215,14 +215,13 @@
   font-weight:800;
 }
 
-/* Disclaimer text above ads */
 .disclaimer{
   font-size:12px;
   color:#9aa3b2;
   text-align:center;
   padding:8px 12px;
   max-width:900px;
-  margin:10px auto 6px auto;
+  margin:10px auto calc(var(--adH) + 10px) auto;
   line-height:1.4;
 }
 
@@ -234,7 +233,7 @@
 .disclaimer a:hover{
   text-decoration:underline;
 }
-
+    
 /* Fixed bottom ad */
 .adbar{
   position:fixed;
@@ -502,22 +501,21 @@
       </div>
     </div>
 
-    <!-- Disclaimer -->
-    <div class="disclaimer">
-      This temporary inbox is intended for testing and disposable email use.
-      Messages may be public and automatically deleted.
-      By using this service you agree to the <a href="/terms">Terms of Use</a>.
-    </div>
-
-    <!-- Fixed ad banner (always visible) -->
-    <div class="adbar">
-      <div class="adInner">
-        <div class="muted">Ad</div>
-        <div class="adBox">1&quot; Fixed Banner Area (Google Ads later)</div>
-        <div class="muted">Never disappears</div>
+      <!-- Disclaimer -->
+      <div class="disclaimer">
+        This temporary inbox is intended for testing and disposable email use.
+        Messages may be public and automatically deleted.
+        By using this service you agree to the <a href="/terms">Terms of Use</a>.
       </div>
-    </div>
-
+      
+      <!-- Fixed ad banner (always visible) -->
+      <div class="adbar">
+        <div class="adInner">
+          <div class="muted">Ad</div>
+          <div class="adBox">1&quot; Fixed Banner Area (Google Ads later)</div>
+          <div class="muted">Never disappears</div>
+        </div>
+</div>
   </div>
 </body>
 </html>
