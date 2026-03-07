@@ -47,24 +47,24 @@
     .topbar .row{ display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
 
     .brand{ display:flex; gap:10px; align-items:center; }
-
-    .logo{
-      width:34px;
-      height:34px;
-      border-radius:10px;
-      overflow:hidden;
-      flex:0 0 34px;
-      box-shadow:0 10px 22px rgba(0,0,0,.35);
-    }
+          
+          .logo{
+            width:34px;
+            height:34px;
+            border-radius:10px;
+            overflow:hidden;
+            flex:0 0 34px;
+            box-shadow:0 10px 22px rgba(0,0,0,.35);
+          }
+          
+          .logo img{
+            width:100%;
+            height:100%;
+            object-fit:cover;
+            display:block;
+          }    
     
-    .logo img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
-    }
-    
-    .brandlink{
+         .brandlink{
           display:flex;
           align-items:center;
           gap:10px;
@@ -81,12 +81,12 @@
     text-decoration:underline;
   }
 
-    .footerNote{
-      font-size:12px;
-      color:#9aa3b2;
-      text-align:center;
-      margin:4px auto 8px auto;
-}   
+.footerNote{
+  font-size:12px;
+  color:#9aa3b2;
+  text-align:center;
+  margin:4px auto 8px auto;
+} 
     
     .title{ font-weight:900; letter-spacing:.2px; font-size:20px; }
     .subtitle{ color:var(--muted); font-size:15px; margin-top:4px; }
@@ -260,7 +260,7 @@
   max-width:900px;
   margin:6px auto 4px auto;
   line-height:1.3;
-} 
+}
     
 /* Fixed bottom ad */
 .adbar{
@@ -324,23 +324,21 @@
     <template x-if="toast.show">
       <div class="toast" x-text="toast.text"></div>
     </template>
-
-    <div class="page">
-      <!-- Top bar -->
-      <div class="topbar">
-        <div class="row">
-                  
-        <div class="brand">
-          <div class="logo">
-            <img src="./logo.png" alt="AuthToolkit logo" />
-          </div>
-          <strong>AuthToolkit</strong>
-        </div>
-          
-          <div class="subtitle">Privacy-first disposable inbox for testing & automation</div>
+        
+        <div class="page">
+          <!-- Top bar -->
+          <div class="topbar">
+            <div class="row">
+              <div class="brand">
+                <div class="logo">
+                  <img src="./logo.png" alt="AuthToolkit logo" />
+                </div>
+                <strong>AuthToolkit</strong>
+              </div>
             </div>
+            <div class="subtitle">Privacy-first disposable inbox for testing &amp; automation</div>
           </div>
-
+        
           <div class="pills">
             <span class="pill">✅ Privacy</span>
             <span class="pill">✅ No signup</span>
