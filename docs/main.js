@@ -293,16 +293,16 @@ async createInbox() {
 
     this.expiryMs = parseExpiryMs(this.expires_at);
     this.isExpired = this.isInboxExpiredNow();
-
+    
     this.persist();
-
+    
     if (this.isExpired) {
       this.markExpired(false);
       return;
     }
-
+    
     this.startTimer();
-
+    
     this.setStatus("Inbox ready");
     this.toastShow("Inbox created");
 
