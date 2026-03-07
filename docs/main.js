@@ -41,55 +41,56 @@
     return Number.isFinite(ms) ? ms : 0;
   }
 
-  async function callFn(
-    name,
-    { method = "GET", query = {}, body = null } = {},
-  ) {
-    const qs = new URLSearchParams(query).toString();
-    const url = `${SUPABASE_URL}/functions/v1/${name}${qs ? `?${qs}` : ""}`;
+async function callFn(
+  name,
+  { method = "GET", query = {}, body = null, headers: extraHeaders = {} } = {},
+) {
+  const qs = new URLSearchParams(query).toString();
+  const url = `${SUPABASE_URL}/functions/v1/${name}${qs ? `?${qs}` : ""}`;
 
-    const headers = {
-      apikey: SUPABASE_ANON_KEY,
-      authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-      "content-type": "application/json",
-    };
+  const headers = {
+    apikey: SUPABASE_ANON_KEY,
+    authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+    "content-type": "application/json",
+    ...extraHeaders,
+  };
 
-    let res;
-    try {
-      res = await fetch(url, {
-        method,
-        headers,
-        body: body ? JSON.stringify(body) : null,
-      });
-    } catch (err) {
-      // network error
-      throw new Error(`NETWORK_ERROR: ${err?.message || String(err)}`);
-    }
-
-    const text = await res.text();
-    let data;
-    try {
-      data = text ? JSON.parse(text) : null;
-    } catch {
-      data = { raw: text };
-    }
-
-    if (!res.ok) {
-      // Attach HTTP status so caller can react (410 -> stop polling)
-      const msg =
-        data?.error?.message ||
-        data?.message ||
-        data?.error ||
-        (text ? text : "Unknown error");
-
-      const e = new Error(`${res.status} ${res.statusText}: ${msg}`);
-      e.status = res.status;
-      e.data = data;
-      throw e;
-    }
-
-    return data;
+  let res;
+  try {
+    res = await fetch(url, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : null,
+    });
+  } catch (err) {
+    // network error
+    throw new Error(`NETWORK_ERROR: ${err?.message || String(err)}`);
   }
+
+  const text = await res.text();
+  let data;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = { raw: text };
+  }
+
+  if (!res.ok) {
+    // Attach HTTP status so caller can react (410 -> stop polling)
+    const msg =
+      data?.error?.message ||
+      data?.message ||
+      data?.error ||
+      (text ? text : "Unknown error");
+
+    const e = new Error(`${res.status} ${res.statusText}: ${msg}`);
+    e.status = res.status;
+    e.data = data;
+    throw e;
+  }
+
+  return data;
+}
 
   function shortId(s) {
     if (!s) return "—";
@@ -254,7 +255,7 @@
         }
       },
       
-      async createInbox() {
+ async createInbox() {
   try {
     this.setStatus("Creating…");
     this.currentEmail = null;
