@@ -255,7 +255,7 @@ async function callFn(
         }
       },
       
- async createInbox() {
+async createInbox() {
   try {
     this.setStatus("Creating…");
     this.currentEmail = null;
@@ -264,18 +264,29 @@ async function callFn(
     // reset expired flag
     this.isExpired = false;
 
-    const existingSessionId = this.session_id || "";
+    const existingSessionId =
+      this.session_id ||
+      localStorage.getItem("atk_session_id") ||
+      "";
 
-    // Keep it super simple: create-inbox returns {session_id,inbox_id,email_address,expires_at}
+    console.log("createInbox existingSessionId:", existingSessionId);
+
     const data = await callFn(FN_CREATE, {
       method: "POST",
+      query: {
+        session_id: existingSessionId,
+      },
       headers: {
         "x-session-id": existingSessionId,
       },
       body: {},
     });
 
+    console.log("createInbox response session_id:", data.session_id);
+
     this.session_id = data.session_id;
+    localStorage.setItem("atk_session_id", this.session_id);
+
     this.inbox_id = data.inbox_id;
     this.email_address = data.email_address;
     this.expires_at = data.expires_at;
@@ -289,6 +300,8 @@ async function callFn(
       this.markExpired(false);
       return;
     }
+
+    this.startTimer();
 
     this.setStatus("Inbox ready");
     this.toastShow("Inbox created");
