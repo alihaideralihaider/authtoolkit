@@ -345,12 +345,13 @@
     <span class="pill">✅ Testing-ready</span>
     <span class="pill">✅ Micro-infrastructure</span>
   </div>
-  
-          <span style="font-weight:900; color:var(--text);">We don’t store your data.</span>
-          Inboxes auto-expire. Built for OTPs, QA, and throwaway signups.
-        </div>
-      </div>
 
+  <!-- Expired banner -->
+  <div class="expBanner" x-show="isExpired" style="display:none;">
+    Inbox expired. Create a new inbox to continue.
+  </div>
+
+  <div class="content">
       <!-- Expired banner -->
       <div class="expBanner" x-show="isExpired" style="display:none;">
         Inbox expired. Create a new inbox to continue.
