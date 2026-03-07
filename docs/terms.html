@@ -25,6 +25,23 @@ body{
   color:#9aa3b2;
   text-align:center;
 } 
+
+.topnav{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:30px;
+  font-size:14px;
+}
+
+.navlinks a{
+  color:#7aa2ff;
+  text-decoration:none;
+}
+
+.navlinks a:hover{
+  text-decoration:underline;
+}  
   
 h1{
   font-size:28px;
@@ -67,7 +84,13 @@ a:hover{
 
 <div class="container">
 
-<a class="back" href="./">← Back</a>
+<div class="topnav">
+  <strong>AuthToolkit</strong>
+  <span class="navlinks">
+    <a href="./">Home</a>
+  </span>
+</div>
+
   
 <h1>Terms of Use</h1>
 <p><strong>Last Updated:</strong> March 2026</p>
