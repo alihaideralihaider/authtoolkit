@@ -46,11 +46,21 @@
     }
     .topbar .row{ display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
     .brand{ display:flex; gap:10px; align-items:center; }
-    .logo{
-      width:34px;height:34px;border-radius:10px;
-      background:linear-gradient(135deg,var(--blue),#22c55e);
-      box-shadow:0 10px 22px rgba(0,0,0,.35);
-    }
+    
+    .logo img{
+        width:34px;
+        height:34px;
+        border-radius:8px;
+        display:block;
+      }
+        .brandlink{
+          display:flex;
+          align-items:center;
+          gap:10px;
+          text-decoration:none;
+          color:var(--text);
+        }
+    
     .title{ font-weight:900; letter-spacing:.2px; font-size:20px; }
     .subtitle{ color:var(--muted); font-size:15px; margin-top:4px; }
 
@@ -309,10 +319,15 @@
       <div class="topbar">
         <div class="row">
           <div class="brand">
-            <div class="logo"></div>
-            <div>
-              <div class="title">AuthToolkit</div>
-              <div class="subtitle">Privacy-first disposable inbox for testing & automation</div>
+              <a href="./" class="brandlink">
+                <div class="logo">
+                  <img src="./logo.png" alt="AuthToolkit">
+                </div>
+                <strong>AuthToolkit</strong>
+              </a>
+            </div>
+          
+          <div class="subtitle">Privacy-first disposable inbox for testing & automation</div>
             </div>
           </div>
 
