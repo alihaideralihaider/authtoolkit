@@ -198,46 +198,70 @@ async function callFn(
 
       startPolling() {
         this.stopPolling();
-
+      
         // Don’t poll if we have no inbox, or it’s expired
         if (!this.inbox_id || !this.session_id) return;
         if (this.isExpired || this.isInboxExpiredNow()) {
           this.markExpired(false);
           return;
         }
-
-        this.pollTimer = setInterval(() => {
-          // Time-based stop (handles expiry without needing a 410)
-          if (this.isInboxExpiredNow()) {
-            this.markExpired(true);
+      
+        this.pollTimer = setInterval(async () => {
+          // Stop immediately if state changed while interval is running
+          if (!this.inbox_id || !this.session_id) {
+            this.stopPolling();
             return;
           }
-          this.refreshEmails(false);
-        }, this.pollEveryMs);
+      
+          if (this.isExpired || this.isInboxExpiredNow()) {
+            this.markExpired(false);
+            this.stopPolling();
+            return;
+          }
+      
+          try {
+            await this.refreshEmails(false);
+          } catch (e) {
+            console.error("polling failed:", e);
+      
+            if (e?.status === 410) {
+              this.stopPolling();
+              this.markExpired(false);
+              this.setStatus("Expired");
+              return;
+            }
+          }
+        }, 5000);
       },
+      
 
-      markExpired(showToast = true) {
-        this.isExpired = true;
-        this.stopPolling();
-
-        // Clear stored inbox so refresh won’t re-poll
-        clearState();
-
-        // Clear current inbox state in memory
-        this.session_id = null;
-        this.inbox_id = null;
-        this.email_address = null;
-        this.expires_at = null;
-        this.expiryMs = 0;
-
-        // UI reset (optional but avoids showing stale emails)
-        this.emails = [];
-        this.currentEmail = null;
-
-        this.setStatus("Expired");
-        if (showToast) this.toastShow("Inbox expired — create a new one");
-      },
-
+           markExpired(showToast = true) {
+          this.isExpired = true;
+          this.stopPolling();
+        
+          if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+          }
+        
+          // Clear stored inbox so refresh won’t re-poll
+          clearState();
+        
+          // Clear current inbox state in memory
+          this.session_id = null;
+          this.inbox_id = null;
+          this.email_address = null;
+          this.expires_at = null;
+          this.expiryMs = 0;
+        
+          // UI reset
+          this.emails = [];
+          this.currentEmail = null;
+        
+          this.setStatus("Expired");
+          if (showToast) this.toastShow("Inbox expired — create a new one");
+        },
+      
       async init() {
         this.hydrateFromStorage();
         this.startTimer();
@@ -353,49 +377,50 @@ async createInbox() {
         this.timerInterval = setInterval(updateTimer, 1000);
       },
 
-      async refreshEmails(showToast = true, showLoading = false) {
-        if (!this.inbox_id || !this.session_id) {
-          if (showToast) this.toastShow("Create an inbox first");
-          return;
-        }
-
-        if (this.isExpired || this.isInboxExpiredNow()) {
-          this.markExpired(showToast);
-          return;
-        }
-
-        try {
-          const data = await callFn(FN_GET, {
-            method: "GET",
-            query: { inbox_id: this.inbox_id, session_id: this.session_id },
-          });
-
-          // Expecting { emails: [...] } OR [...] — handle both
-          const list = Array.isArray(data) ? data : data?.emails || [];
-          this.emails = list;
-
-          // Keep currentEmail object fresh if still exists
-          if (this.currentEmail?.id) {
-            const fresh = this.emails.find((x) => x.id === this.currentEmail.id);
-            if (fresh) this.currentEmail = fresh;
+        async refreshEmails(showToast = true, showLoading = false) {
+          if (!this.inbox_id || !this.session_id) {
+            if (showToast) this.toastShow("Create an inbox first");
+            return;
           }
-
-          this.setStatus("Ready");
-          if (showToast) this.toastShow("Refreshed");
-        } catch (e) {
-          // If backend says expired, STOP polling and clear state
-          if (e?.status === 410) {
-            console.warn("Inbox expired (410). Stopping polling.");
+        
+          if (this.isExpired || this.isInboxExpiredNow()) {
             this.markExpired(showToast);
             return;
           }
-
-          console.error("get-emails failed:", e);
-          this.setStatus("Error");
-          if (showToast) this.toastShow("Refresh failed (see console)");
-        }
-      },
-
+        
+          try {
+            const data = await callFn(FN_GET, {
+              method: "GET",
+              query: { inbox_id: this.inbox_id, session_id: this.session_id },
+            });
+        
+            // Expecting { emails: [...] } OR [...] — handle both
+            const list = Array.isArray(data) ? data : data?.emails || [];
+            this.emails = list;
+        
+            // Keep currentEmail object fresh if still exists
+            if (this.currentEmail?.id) {
+              const fresh = this.emails.find((x) => x.id === this.currentEmail.id);
+              if (fresh) this.currentEmail = fresh;
+            }
+        
+            this.setStatus("Ready");
+            if (showToast) this.toastShow("Refreshed");
+          } catch (e) {
+            // If backend says expired, STOP polling and clear state
+            if (e?.status === 410) {
+              console.warn("Inbox expired (410). Stopping polling.");
+              this.stopPolling();
+              this.markExpired(showToast);
+              return;
+            }
+        
+            console.error("get-emails failed:", e);
+            this.setStatus("Error");
+            if (showToast) this.toastShow("Refresh failed (see console)");
+          }
+        },
+      
       openEmail(e) {
         this.currentEmail = e;
       },
