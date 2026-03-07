@@ -253,45 +253,54 @@
           this.startPolling();
         }
       },
+      
       async createInbox() {
-        try {
-          this.setStatus("Creating…");
-          this.currentEmail = null;
-          this.emails = [];
+  try {
+    this.setStatus("Creating…");
+    this.currentEmail = null;
+    this.emails = [];
 
-          // reset expired flag
-          this.isExpired = false;
+    // reset expired flag
+    this.isExpired = false;
 
-          // Keep it super simple: create-inbox returns {session_id,inbox_id,email_address,expires_at}
-          const data = await callFn(FN_CREATE, { method: "POST", body: {} });
+    const existingSessionId = this.session_id || "";
 
-          this.session_id = data.session_id;
-          this.inbox_id = data.inbox_id;
-          this.email_address = data.email_address;
-          this.expires_at = data.expires_at;
-
-          this.expiryMs = parseExpiryMs(this.expires_at);
-          this.isExpired = this.isInboxExpiredNow();
-
-          this.persist();
-
-          if (this.isExpired) {
-            this.markExpired(false);
-            return;
-          }
-
-          this.setStatus("Inbox ready");
-          this.toastShow("Inbox created");
-
-          // Fetch messages and start polling
-          await this.refreshEmails(false);
-          this.startPolling();
-        } catch (e) {
-          console.error("createInbox failed:", e);
-          this.setStatus("Error");
-          this.toastShow("Create failed (see console)");
-        }
+    // Keep it super simple: create-inbox returns {session_id,inbox_id,email_address,expires_at}
+    const data = await callFn(FN_CREATE, {
+      method: "POST",
+      headers: {
+        "x-session-id": existingSessionId,
       },
+      body: {},
+    });
+
+    this.session_id = data.session_id;
+    this.inbox_id = data.inbox_id;
+    this.email_address = data.email_address;
+    this.expires_at = data.expires_at;
+
+    this.expiryMs = parseExpiryMs(this.expires_at);
+    this.isExpired = this.isInboxExpiredNow();
+
+    this.persist();
+
+    if (this.isExpired) {
+      this.markExpired(false);
+      return;
+    }
+
+    this.setStatus("Inbox ready");
+    this.toastShow("Inbox created");
+
+    // Fetch messages and start polling
+    await this.refreshEmails(false);
+    this.startPolling();
+  } catch (e) {
+    console.error("createInbox failed:", e);
+    this.setStatus("Error");
+    this.toastShow("Create failed (see console)");
+  }
+},
 
           startTimer() {
         if (!this.expiryMs) {
