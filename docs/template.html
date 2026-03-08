@@ -1,1 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PAGE TITLE — AuthToolkit</title>
 
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🛡️</text></svg>">
+
+  <!-- App FIRST -->
+  <script defer src="./main.js?v=20260305-1"></script>
+
+  <!-- Alpine SECOND -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:#121a2b;
+      --card2:#0f1730;
+      --border:#24304a;
+      --muted:#9fb0cc;
+      --text:#e6edf7;
+      --blue:#2563eb;
+      --blue2:#1d4ed8;
+      --danger:#b91c1c;
+      --adH:96px;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background:var(--bg);
+      color:var(--text);
+      overflow-y:auto;
+    }
+
+    .page{
+      display:block;
+      padding-bottom:calc(var(--adH) + 80px);
+    }
+
+    .topbar{
+      padding:22px 18px 16px;
+      border-bottom:1px solid var(--border);
+      background:rgba(18,26,43,.75);
+      backdrop-filter:blur(8px);
+    }
+      
+    .topbar .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:nowrap;
+    }
+      
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+      
+    .pills{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-left:auto;
+    }
+      
+    @media (max-width: 700px){
+      .topbar .row{
+        flex-wrap:wrap;
+      }
+      
+      .pills{
+        width:100%;
+        justify-content:flex-start;
+        margin-left:0;
+      }
+    }
+    
+    .brand{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+
+    .brandlink{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      text-decoration:none;
+      color:var(--text);
+    }
+
+    .logo{
+      width:34px;
+      height:34px;
+      border-radius:10px;
+      overflow:hidden;
+      flex:0 0 34px;
+      box-shadow:0 10px 22px rgba(0,0,0,.35);
+    }
+
+    .logo img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .title{
+      font-weight:900;
+      letter-spacing:.2px;
+      font-size:20px;
+    }
+
+    .subtitle{
+      color:var(--muted);
+      font-size:15px;
+      margin-top:4px;
+    }
+
+    .pills{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      padding:14px 18px 0;
+    }
+
+    .pill{
+      display:inline-flex;
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:var(--card2);
+      color:var(--text);
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .expBanner{
+      margin:14px 18px 0;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(185, 28, 28, .85);
+      color:#fff;
+      font-size:13px;
+      font-weight:800;
+    }
+
+    .content{
+      display:grid;
+      grid-template-columns:320px 1fr;
+      gap:14px;
+      padding:14px 18px;
+      overflow:visible;
+    }
+
+    .side{
+      border:1px solid var(--border);
+      background:var(--card);
+      border-radius:14px;
+      padding:12px;
+      overflow:auto;
+      box-shadow:0 10px 26px rgba(0,0,0,.25);
+    }
+
+    .side h3{
+      margin:4px 0 10px;
+      font-size:14px;
+    }
+
+    .side .hint{
+      color:var(--muted);
+      font-size:12px;
+      margin-bottom:10px;
+    }
+
+    .svc{
+      border:1px solid var(--border);
+      background:var(--card2);
+      border-radius:12px;
+      padding:10px;
+      margin-bottom:10px;
+    }
+
+    .svc .name{
+      font-weight:700;
+      font-size:13px;
+    }
+
+    .svc .desc{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:4px;
+      line-height:1.35;
+    }
+
+    .tag{
+      display:inline-flex;
+      margin-top:8px;
+      font-size:11px;
+      color:#b6c5df;
+      border:1px solid var(--border);
+      background:rgba(37,99,235,.10);
+      padding:3px 8px;
+      border-radius:999px;
+    }
+
+    .main{
+      min-width:0;
+      overflow:visible;
+    }
+
+    .card{
+      min-width:0;
+      overflow:visible;
+      border:1px solid var(--border);
+      background:var(--card);
+      border-radius:14px;
+      padding:14px;
+      box-shadow:0 10px 26px rgba(0,0,0,.25);
+    }
+
+    .hero{
+      display:grid;
+      grid-template-columns:1.2fr .9fr;
+      gap:14px;
+      align-items:start;
+    }
+
+    .hero h1{
+      margin:0;
+      font-size:22px;
+    }
+
+    .hero p{
+      margin:10px 0 0;
+      color:var(--muted);
+      line-height:1.5;
+    }
+
+    .btnRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+
+    .btn{
+      border:1px solid #2f3c5a;
+      background:#1a2440;
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+    }
+
+    .btn:hover{
+      background:#202c4f;
+    }
+
+    .btn:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
+
+    .btnPrimary{
+      background:var(--blue);
+      border-color:var(--blue);
+    }
+
+    .btnPrimary:hover{
+      background:var(--blue2);
+    }
+
+    .btnDanger{
+      background:var(--danger);
+      border-color:var(--danger);
+    }
+
+    .btnDanger:hover{
+      background:#991b1b;
+    }
+
+    .input{
+      width:100%;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #2f3c5a;
+      background:var(--card2);
+      color:var(--text);
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono";
+    }
+
+    .muted{
+      color:var(--muted);
+    }
+
+    .mono{
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono";
+    }
+
+    .hr{
+      height:1px;
+      background:var(--border);
+      margin:12px 0;
+    }
+
+    .email-list{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      margin-top:12px;
+      max-height:320px;
+      overflow-y:auto;
+      padding-right:4px;
+    }
+
+    .email-card{
+      background:var(--card2);
+      border:1px solid var(--border);
+      padding:12px;
+      border-radius:8px;
+      cursor:pointer;
+    }
+
+    .email-body{
+      margin-top:12px;
+      padding:12px;
+      border:1px solid var(--border);
+      background:var(--card);
+      border-radius:10px;
+      max-height:260px;
+      overflow:auto;
+    }
+
+    .toast{
+      position:fixed;
+      right:18px;
+      top:18px;
+      background:var(--card2);
+      border:1px solid #2f3c5a;
+      padding:10px 12px;
+      border-radius:12px;
+      z-index:90;
+      box-shadow:0 10px 26px rgba(0,0,0,.35);
+    }
+
+    .disclaimer{
+      font-size:11px;
+      color:#9aa3b2;
+      text-align:center;
+      padding:4px 10px;
+      max-width:900px;
+      margin:6px auto 4px auto;
+      line-height:1.3;
+    }
+
+    .disclaimer a{
+      color:#7aa2ff;
+      text-decoration:none;
+    }
+
+    .disclaimer a:hover{
+      text-decoration:underline;
+    }
+
+    .footerNote{
+      font-size:12px;
+      color:#9aa3b2;
+      text-align:center;
+      margin:4px auto 8px auto;
+    }
+
+    .contentPage h1{
+      margin:0 0 10px;
+      font-size:28px;
+    }
+
+    .contentPage h2{
+      margin:22px 0 8px;
+      font-size:18px;
+    }
+
+    .contentPage p{
+      color:var(--muted);
+      line-height:1.6;
+      margin:0 0 12px;
+    }
+
+    .contentPage ul{
+      margin:0 0 14px 20px;
+      padding:0;
+      color:var(--muted);
+      line-height:1.6;
+    }
+
+    .contentPage li{
+      margin-bottom:8px;
+    }
+
+    .adbar{
+      position:fixed;
+      left:0;
+      right:0;
+      bottom:0;
+      height:var(--adH);
+      border-top:1px solid var(--border);
+      background:#0a1020;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:60;
+    }
+
+    .adInner{
+      width:min(1100px, 100%);
+      padding:0 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .adBox{
+      flex:1;
+      height:64px;
+      border:1px dashed #2f3c5a;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#8ea2c6;
+      background:rgba(18,26,43,.35);
+    }
+
+    @media (max-width: 980px){
+      .content{
+        grid-template-columns:1fr;
+      }
+
+      .hero{
+        grid-template-columns:1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" x-data="emailApp()" x-init="init()">
+    <template x-if="toast.show">
+      <div class="toast" x-text="toast.text"></div>
+    </template>
+
+    <div class="page">
+      <!-- Top bar -->
+      <div class="topbar">
+        <div class="row">
+          <div class="brand">
+            <div class="logo">
+              <img src="./logo.png" alt="AuthToolkit logo" />
+            </div>
+            <strong>AuthToolkit</strong>
+          </div>
+      
+          <div class="pills">
+            <span class="pill">✅ Privacy</span>
+            <span class="pill">✅ No signup</span>
+            <span class="pill">✅ Testing-ready</span>
+            <span class="pill">✅ Micro-infrastructure</span>
+          </div>
+        </div>
+      
+        <div class="subtitle">Privacy-first disposable inbox for testing &amp; automation</div>
+      </div>
+      
+      <!-- Expired banner -->
+      <div class="expBanner" x-show="isExpired" style="display:none;">
+        Inbox expired. Create a new inbox to continue.
+      </div>
+
+      <!-- Main content -->
+      <div class="content">
+        <!-- Left menu -->
+        <aside class="side">
+          <h3>Services (Roadmap)</h3>
+          <div class="hint">
+            We’re building a suite of micro-infrastructure tools for QA, auth testing, and privacy.
+            These are shown here as a roadmap.
+          </div>
+
+          <div class="svc"><div class="name">Text-to-Verify Service</div><div class="desc">Generate disposable inbox + verification flow for testing signup forms.</div><span class="tag">Coming soon</span></div>
+          <div class="svc"><div class="name">OTP Testing Sandbox</div><div class="desc">Simulate OTP verification, retries, throttling, and edge cases.</div><span class="tag">Coming soon</span></div>
+          <div class="svc"><div class="name">Simple API Service</div><div class="desc">Minimal endpoints for inbox creation, fetch, retention policies.</div><span class="tag">Planned</span></div>
+          <div class="svc"><div class="name">Webhook Forwarding</div><div class="desc">Forward received email/SMS events to your staging webhooks.</div><span class="tag">Planned</span></div>
+          <div class="svc"><div class="name">Dedicated Inbox for Testing</div><div class="desc">Stable inboxes with controls: retention, allowlist, API keys.</div><span class="tag">Planned</span></div>
+          <div class="svc"><div class="name">Temp Phone Number</div><div class="desc">Disposable numbers for signup testing and QA flows.</div><span class="tag">Future</span></div>
+          <div class="svc"><div class="name">SMS OTP Capture</div><div class="desc">Capture inbound OTPs and expose via API + webhook.</div><span class="tag">Future</span></div>
+          <div class="svc"><div class="name">Generate OTP</div><div class="desc">Generate time-based OTPs and verification simulators.</div><span class="tag">Future</span></div>
+          <div class="svc"><div class="name">Simulate Email Delivery</div><div class="desc">Deliverability simulations for staging and integration tests.</div><span class="tag">Future</span></div>
+          <div class="svc"><div class="name">Simulate SMS Delivery</div><div class="desc">Simulated SMS provider responses and failure modes.</div><span class="tag">Future</span></div>
+          <div class="svc"><div class="name">API Access Service</div><div class="desc">Keys, quotas, usage logs, and billing controls.</div><span class="tag">Future</span></div>
+          <div class="svc"><div class="name">Metadata Remover for Images</div><div class="desc">Strip EXIF/location metadata before sharing.</div><span class="tag">Future</span></div>
+        </aside>
+
+        <!-- Right main -->
+        <main class="main">
+          <div class="card contentPage">
+            <!-- PAGE CONTENT START -->
+
+            <h1>Page Title</h1>
+            <p>
+              Replace this content area for each new page.
+            </p>
+
+            <h2>Section Heading</h2>
+            <p>
+              This template keeps the same header, left sidebar, disclaimer,
+              footer note, and fixed ad banner as the landing page.
+            </p>
+
+            <ul>
+              <li>Edit the page title in the browser tab.</li>
+              <li>Change this right-side content only.</li>
+              <li>Leave the rest of the layout untouched.</li>
+            </ul>
+
+            <!-- PAGE CONTENT END -->
+          </div>
+        </main>
+      </div>
+
+      <!-- Disclaimer -->
+      <div class="disclaimer">
+        This temporary inbox is intended for testing and disposable email use.
+        Messages may be public and automatically deleted.
+        By using this service you agree to the <a href="./terms.html">Terms of Use</a>.
+      </div>
+
+      <p class="footerNote">© 2026 AuthToolkit</p>
+
+      <!-- Fixed ad banner -->
+      <div class="adbar">
+        <div class="adInner">
+          <div class="muted">Ad</div>
+          <div class="adBox">1&quot; Fixed Banner Area (Google Ads later)</div>
+          <div class="muted">Never disappears</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
