@@ -1,163 +1,199 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Terms of Use</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Terms of Use — AuthToolkit</title>
 
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🛡️</text></svg>">
+
+<script defer src="./main.js?v=20260305-1"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+<!-- keep SAME CSS as template / privacy / abuse -->
 <style>
-body{
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  background:#0b1020;
-  color:#e6e9ef;
-  margin:0;
-  padding:40px 20px;
-}
-
-.container{
-  max-width:800px;
-  margin:auto;
-}
-
- .footerNote{
-  margin-top:40px;
-  font-size:12px;
-  color:#9aa3b2;
-  text-align:center;
-} 
-
-.topnav{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:30px;
-  font-size:14px;
-}
-
-.navlinks a{
-  color:#7aa2ff;
-  text-decoration:none;
-}
-
-.navlinks a:hover{
-  text-decoration:underline;
-}  
-  
-h1{
-  font-size:28px;
-  margin-bottom:10px;
-}
-
-h2{
-  margin-top:28px;
-  font-size:18px;
-  color:#9fb4ff;
-}
-
-p{
-  line-height:1.6;
-  color:#cfd6e6;
-}
-
-ul{
-  line-height:1.6;
-  color:#cfd6e6;
-}
-
-a{
-  color:#7aa2ff;
-  text-decoration:none;
-}
-
-a:hover{
-  text-decoration:underline;
-}
-
-.back{
-  margin-bottom:20px;
-  display:inline-block;
-}
+/* keep your existing CSS exactly the same here */
 </style>
+
 </head>
 
 <body>
 
-<div class="container">
+<div id="app" x-data="emailApp()" x-init="init()">
 
-<div class="topnav">
-  <strong>AuthToolkit</strong>
-  <span class="navlinks">
-    <a href="./">Home</a>
-  </span>
+<div class="page">
+
+<!-- Top bar -->
+<div class="topbar">
+<div class="row">
+<div class="brand">
+<div class="logo">
+<img src="./logo.png" alt="AuthToolkit logo" />
+</div>
+<strong>AuthToolkit</strong>
 </div>
 
-  
+<div class="pills">
+<span class="pill">✅ Privacy</span>
+<span class="pill">✅ No signup</span>
+<span class="pill">✅ Testing-ready</span>
+<span class="pill">✅ Micro-infrastructure</span>
+</div>
+</div>
+
+<div class="subtitle">Privacy-first disposable inbox for testing & automation</div>
+</div>
+
+
+<!-- Main content -->
+<div class="content">
+
+<!-- Left menu -->
+<aside class="side">
+
+<h3>Services (Roadmap)</h3>
+
+<div class="hint">
+We’re building a suite of micro-infrastructure tools for QA, auth testing, and privacy.
+These are shown here as a roadmap.
+</div>
+
+<div class="svc"><div class="name">Text-to-Verify Service</div><div class="desc">Generate disposable inbox + verification flow for testing signup forms.</div><span class="tag">Coming soon</span></div>
+<div class="svc"><div class="name">OTP Testing Sandbox</div><div class="desc">Simulate OTP verification, retries, throttling, and edge cases.</div><span class="tag">Coming soon</span></div>
+<div class="svc"><div class="name">Simple API Service</div><div class="desc">Minimal endpoints for inbox creation, fetch, retention policies.</div><span class="tag">Planned</span></div>
+<div class="svc"><div class="name">Webhook Forwarding</div><div class="desc">Forward received email/SMS events to your staging webhooks.</div><span class="tag">Planned</span></div>
+<div class="svc"><div class="name">Dedicated Inbox for Testing</div><div class="desc">Stable inboxes with controls: retention, allowlist, API keys.</div><span class="tag">Planned</span></div>
+
+</aside>
+
+
+<!-- Right content -->
+<main class="main">
+
+<div class="card contentPage">
+
 <h1>Terms of Use</h1>
-<p><strong>Last Updated:</strong> March 2026</p>
 
 <p>
-AuthToolkit provides temporary email inboxes intended for testing,
-disposable email use, and developer experimentation.
-By using this service you agree to the following terms.
+Effective date: March 7, 2026
 </p>
 
-<h2>Temporary Inboxes</h2>
-<p>All inboxes created by this service are temporary and publicly accessible.</p>
-
-<ul>
-<li>Messages may be visible to other users</li>
-<li>Messages may be automatically deleted after expiration</li>
-<li>Messages may not be stored permanently</li>
-</ul>
-
-<p>Do not use this service for sensitive or confidential communications.</p>
-
-<h2>Message Filtering</h2>
 <p>
-To discourage misuse and protect external services, certain messages may be
-blocked, filtered, or not displayed.
+By accessing or using AuthToolkit, you agree to the following terms and conditions.
+If you do not agree with these terms, you should not use the service.
 </p>
 
-<ul>
-<li>automated no-reply addresses</li>
-<li>system notification emails</li>
-<li>account recovery messages</li>
-<li>financial or government service communications</li>
-</ul>
+<h2>Service Description</h2>
 
-<p>Filtering rules may change at any time without notice.</p>
+<p>
+AuthToolkit provides temporary email inboxes designed for development,
+testing workflows, QA environments, and privacy-focused short-term email usage.
+</p>
+
+<p>
+Temporary inboxes are automatically generated and may expire or be deleted
+without notice.
+</p>
 
 <h2>Acceptable Use</h2>
-<p>This service is intended for testing, development, and disposable email use.</p>
 
 <p>
-Use of this service for fraud, harassment, abuse, or illegal activity is prohibited.
+You agree to use AuthToolkit only for lawful purposes and in accordance with
+these terms.
+</p>
+
+<p>
+You must not use the service for:
+</p>
+
+<ul>
+<li>Spam or unsolicited messaging</li>
+<li>Fraud or impersonation</li>
+<li>Harassment or abusive activity</li>
+<li>Illegal activity or attempts to bypass protections</li>
+<li>Mass automated abuse of third-party services</li>
+</ul>
+
+<h2>Temporary Inbox Limitations</h2>
+
+<p>
+Temporary inboxes are intended for short-term testing and disposable use.
+Messages may be automatically deleted and should not be relied upon for
+important, sensitive, or long-term communications.
+</p>
+
+<h2>No Guarantee of Availability</h2>
+
+<p>
+AuthToolkit is provided on an “as-is” basis. The service may be modified,
+restricted, suspended, or discontinued at any time without prior notice.
 </p>
 
 <h2>Abuse Prevention</h2>
 
-<ul>
-<li>rate limiting</li>
-<li>IP blocking</li>
-<li>automated abuse detection</li>
-<li>domain filtering</li>
-</ul>
-
-<p>Users attempting to abuse the service may be blocked.</p>
-
-<h2>Service Availability</h2>
 <p>
-This service is provided "as-is". AuthToolkit does not guarantee message delivery,
-storage duration, or uninterrupted availability.
+AuthToolkit may monitor technical activity, apply rate limits,
+block abusive patterns, or restrict access where misuse is detected.
+</p>
+
+<p>
+Abuse reports may be sent to:
+</p>
+
+<p>
+<strong>abuse@authtoolkit.com</strong>
 </p>
 
 <h2>Limitation of Liability</h2>
+
 <p>
-AuthToolkit is not responsible for any loss or damages resulting from the use of
-temporary inboxes or related services.
+AuthToolkit is not responsible for any damages, losses, or issues arising
+from the use or inability to use the service, including data loss,
+service interruptions, or third-party misuse.
 </p>
+
+<h2>Changes to Terms</h2>
+
+<p>
+These terms may be updated from time to time as the service evolves.
+Continued use of the service constitutes acceptance of the updated terms.
+</p>
+
+<h2>Contact</h2>
+
+<p>
+For questions regarding these terms you may contact:
+</p>
+
+<p>
+<strong>enquiry@authtoolkit.com</strong>
+</p>
+
+</div>
+
+</main>
+</div>
+
+
+<!-- Disclaimer -->
+<div class="disclaimer">
+This temporary inbox is intended for testing and disposable email use.
+Messages may be public and automatically deleted.
+By using this service you agree to the <a href="./terms.html">Terms of Use</a>.
+</div>
+
 <p class="footerNote">© 2026 AuthToolkit</p>
-    
+
+<!-- Ad bar -->
+<div class="adbar">
+<div class="adInner">
+<div class="muted">Ad</div>
+<div class="adBox">1" Fixed Banner Area (Google Ads later)</div>
+<div class="muted">Never disappears</div>
+</div>
+</div>
+
+</div>
 </div>
 
 </body>
