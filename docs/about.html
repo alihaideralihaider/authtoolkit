@@ -7,7 +7,10 @@
 
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🛡️</text></svg>">
 
+  <!-- App FIRST -->
   <script defer src="./main.js?v=20260305-1"></script>
+
+  <!-- Alpine SECOND -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
   <style>
@@ -15,222 +18,394 @@
       --bg:#0b1220;
       --card:#121a2b;
       --card2:#0f1730;
-      --border:#22304f;
-      --text:#e8eefc;
-      --muted:#9fb0d1;
-      --accent:#7cc4ff;
-      --accent2:#8ef0c9;
-      --danger:#ff8a8a;
-      --shadow: 0 10px 30px rgba(0,0,0,.28);
-      --radius: 18px;
-      --max: 1100px;
+      --border:#24304a;
+      --muted:#9fb0cc;
+      --text:#e6edf7;
+      --blue:#2563eb;
+      --blue2:#1d4ed8;
+      --danger:#b91c1c;
+      --adH:96px;
     }
 
     *{ box-sizing:border-box; }
-    html,body{ margin:0; padding:0; }
+
     body{
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background:
-        radial-gradient(1200px 500px at 20% -10%, rgba(124,196,255,.10), transparent 60%),
-        radial-gradient(900px 500px at 100% 0%, rgba(142,240,201,.08), transparent 55%),
-        var(--bg);
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background:var(--bg);
       color:var(--text);
-      line-height:1.6;
-      min-height:100vh;
-    }
-
-    a{ color:var(--accent); text-decoration:none; }
-    a:hover{ text-decoration:underline; }
-
-    .wrap{
-      width:min(var(--max), calc(100% - 24px));
-      margin:0 auto;
-    }
-
-    .topbar{
-      position:sticky;
-      top:0;
-      z-index:30;
-      backdrop-filter: blur(12px);
-      background:rgba(11,18,32,.72);
-      border-bottom:1px solid rgba(255,255,255,.06);
-    }
-
-    .nav{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:18px;
-      min-height:70px;
-    }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      font-weight:800;
-      letter-spacing:.2px;
-      color:var(--text);
-      text-decoration:none;
-    }
-
-    .brand-badge{
-      width:38px;
-      height:38px;
-      display:grid;
-      place-items:center;
-      border-radius:12px;
-      background:linear-gradient(135deg, rgba(124,196,255,.18), rgba(142,240,201,.14));
-      border:1px solid rgba(255,255,255,.08);
-      box-shadow:var(--shadow);
-      font-size:19px;
-    }
-
-    .navlinks{
-      display:flex;
-      flex-wrap:wrap;
-      gap:14px;
-      align-items:center;
-    }
-
-    .navlinks a{
-      color:var(--muted);
-      font-weight:600;
-      font-size:14px;
-    }
-
-    .navlinks a.active{
-      color:var(--text);
+      overflow-y:auto;
     }
 
     .page{
-      padding:42px 0 120px;
+      display:block;
+      padding-bottom:calc(var(--adH) + 80px);
     }
 
-    .page-hero{
-      margin-bottom:22px;
+    .topbar{
+      padding:22px 18px 16px;
+      border-bottom:1px solid var(--border);
+      background:rgba(18,26,43,.75);
+      backdrop-filter:blur(8px);
     }
-
-    .eyebrow{
-      display:inline-flex;
+      
+    .topbar .row{
+      display:flex;
       align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:nowrap;
+    }
+      
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+      
+    .pills{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
       gap:8px;
-      font-size:12px;
+      flex-wrap:wrap;
+      margin-left:auto;
+    }
+      
+    @media (max-width: 700px){
+      .topbar .row{
+        flex-wrap:wrap;
+      }
+      
+      .pills{
+        width:100%;
+        justify-content:flex-start;
+        margin-left:0;
+      }
+    }
+    
+    .brand{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+
+    .brandlink{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      text-decoration:none;
+      color:var(--text);
+    }
+
+    .logo{
+      width:34px;
+      height:34px;
+      border-radius:10px;
+      overflow:hidden;
+      flex:0 0 34px;
+      box-shadow:0 10px 22px rgba(0,0,0,.35);
+    }
+
+    .logo img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .title{
+      font-weight:900;
+      letter-spacing:.2px;
+      font-size:20px;
+    }
+
+    .subtitle{
+      color:var(--muted);
+      font-size:15px;
+      margin-top:4px;
+    }
+
+    .pills{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      padding:14px 18px 0;
+    }
+
+    .pill{
+      display:inline-flex;
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:var(--card2);
+      color:var(--text);
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .expBanner{
+      margin:14px 18px 0;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(185, 28, 28, .85);
+      color:#fff;
+      font-size:13px;
       font-weight:800;
-      letter-spacing:.14em;
-      text-transform:uppercase;
-      color:var(--accent2);
+    }
+
+    .content{
+      display:grid;
+      grid-template-columns:320px 1fr;
+      gap:14px;
+      padding:14px 18px;
+      overflow:visible;
+    }
+
+    .side{
+      border:1px solid var(--border);
+      background:var(--card);
+      border-radius:14px;
+      padding:12px;
+      overflow:auto;
+      box-shadow:0 10px 26px rgba(0,0,0,.25);
+    }
+
+    .side h3{
+      margin:4px 0 10px;
+      font-size:14px;
+    }
+
+    .side .hint{
+      color:var(--muted);
+      font-size:12px;
       margin-bottom:10px;
     }
 
-    h1{
-      margin:0 0 10px;
-      font-size:clamp(30px, 5vw, 46px);
-      line-height:1.08;
-      letter-spacing:-.02em;
-    }
-
-    .lead{
-      margin:0;
-      max-width:780px;
-      color:var(--muted);
-      font-size:17px;
-    }
-
-    .legal-card{
-      margin-top:26px;
-      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+    .svc{
       border:1px solid var(--border);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      overflow:hidden;
+      background:var(--card2);
+      border-radius:12px;
+      padding:10px;
+      margin-bottom:10px;
     }
 
-    .legal-inner{
-      padding:28px;
+    .svc .name{
+      font-weight:700;
+      font-size:13px;
     }
 
-    .section{
-      padding:6px 0 8px;
-    }
-
-    .section + .section{
-      margin-top:12px;
-      padding-top:20px;
-      border-top:1px solid rgba(255,255,255,.06);
-    }
-
-    h2{
-      margin:0 0 10px;
-      font-size:22px;
-      line-height:1.2;
-    }
-
-    p{
-      margin:0 0 14px;
-      color:#dbe6ff;
-    }
-
-    ul{
-      margin:0 0 14px 18px;
-      padding:0;
-      color:#dbe6ff;
-    }
-
-    li{ margin:0 0 8px; }
-
-    .info-grid{
-      display:grid;
-      grid-template-columns:repeat(3, minmax(0,1fr));
-      gap:14px;
-      margin-top:18px;
-    }
-
-    .info-box{
-      background:rgba(255,255,255,.03);
-      border:1px solid rgba(255,255,255,.07);
-      border-radius:16px;
-      padding:16px;
-    }
-
-    .info-box .label{
+    .svc .desc{
+      color:var(--muted);
       font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:.08em;
-      color:var(--muted);
-      margin-bottom:6px;
-      font-weight:700;
+      margin-top:4px;
+      line-height:1.35;
     }
 
-    .info-box .value{
-      font-size:15px;
-      color:var(--text);
-      font-weight:700;
+    .tag{
+      display:inline-flex;
+      margin-top:8px;
+      font-size:11px;
+      color:#b6c5df;
+      border:1px solid var(--border);
+      background:rgba(37,99,235,.10);
+      padding:3px 8px;
+      border-radius:999px;
     }
 
-    footer{
-      border-top:1px solid rgba(255,255,255,.06);
-      padding:22px 0 100px;
-      color:var(--muted);
+    .main{
+      min-width:0;
+      overflow:visible;
     }
 
-    .footer-row{
-      display:flex;
-      justify-content:space-between;
-      gap:20px;
-      flex-wrap:wrap;
-      align-items:center;
+    .card{
+      min-width:0;
+      overflow:visible;
+      border:1px solid var(--border);
+      background:var(--card);
+      border-radius:14px;
+      padding:14px;
+      box-shadow:0 10px 26px rgba(0,0,0,.25);
     }
 
-    .footer-links{
-      display:flex;
-      flex-wrap:wrap;
+    .hero{
+      display:grid;
+      grid-template-columns:1.2fr .9fr;
       gap:14px;
+      align-items:start;
     }
 
-    .footer-links a{
+    .hero h1{
+      margin:0;
+      font-size:22px;
+    }
+
+    .hero p{
+      margin:10px 0 0;
       color:var(--muted);
-      font-size:14px;
+      line-height:1.5;
+    }
+
+    .btnRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+
+    .btn{
+      border:1px solid #2f3c5a;
+      background:#1a2440;
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+    }
+
+    .btn:hover{
+      background:#202c4f;
+    }
+
+    .btn:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
+
+    .btnPrimary{
+      background:var(--blue);
+      border-color:var(--blue);
+    }
+
+    .btnPrimary:hover{
+      background:var(--blue2);
+    }
+
+    .btnDanger{
+      background:var(--danger);
+      border-color:var(--danger);
+    }
+
+    .btnDanger:hover{
+      background:#991b1b;
+    }
+
+    .input{
+      width:100%;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #2f3c5a;
+      background:var(--card2);
+      color:var(--text);
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono";
+    }
+
+    .muted{
+      color:var(--muted);
+    }
+
+    .mono{
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono";
+    }
+
+    .hr{
+      height:1px;
+      background:var(--border);
+      margin:12px 0;
+    }
+
+    .email-list{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      margin-top:12px;
+      max-height:320px;
+      overflow-y:auto;
+      padding-right:4px;
+    }
+
+    .email-card{
+      background:var(--card2);
+      border:1px solid var(--border);
+      padding:12px;
+      border-radius:8px;
+      cursor:pointer;
+    }
+
+    .email-body{
+      margin-top:12px;
+      padding:12px;
+      border:1px solid var(--border);
+      background:var(--card);
+      border-radius:10px;
+      max-height:260px;
+      overflow:auto;
+    }
+
+    .toast{
+      position:fixed;
+      right:18px;
+      top:18px;
+      background:var(--card2);
+      border:1px solid #2f3c5a;
+      padding:10px 12px;
+      border-radius:12px;
+      z-index:90;
+      box-shadow:0 10px 26px rgba(0,0,0,.35);
+    }
+
+    .disclaimer{
+      font-size:11px;
+      color:#9aa3b2;
+      text-align:center;
+      padding:4px 10px;
+      max-width:900px;
+      margin:6px auto 4px auto;
+      line-height:1.3;
+    }
+
+    .disclaimer a{
+      color:#7aa2ff;
+      text-decoration:none;
+    }
+
+    .disclaimer a:hover{
+      text-decoration:underline;
+    }
+
+    .footerNote{
+      font-size:12px;
+      color:#9aa3b2;
+      text-align:center;
+      margin:4px auto 8px auto;
+    }
+
+    .contentPage h1{
+      margin:0 0 10px;
+      font-size:28px;
+    }
+
+    .contentPage h2{
+      margin:22px 0 8px;
+      font-size:18px;
+    }
+
+    .contentPage p{
+      color:var(--muted);
+      line-height:1.6;
+      margin:0 0 12px;
+    }
+
+    .contentPage ul{
+      margin:0 0 14px 20px;
+      padding:0;
+      color:var(--muted);
+      line-height:1.6;
+    }
+
+    .contentPage li{
+      margin-bottom:8px;
     }
 
     .adbar{
@@ -238,208 +413,196 @@
       left:0;
       right:0;
       bottom:0;
-      z-index:50;
-      border-top:1px solid rgba(255,255,255,.08);
-      background:rgba(10,14,24,.96);
-      backdrop-filter: blur(10px);
+      height:var(--adH);
+      border-top:1px solid var(--border);
+      background:#0a1020;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:60;
     }
 
     .adInner{
-      width:min(var(--max), calc(100% - 24px));
-      margin:0 auto;
-      min-height:72px;
+      width:min(1100px, 100%);
+      padding:0 18px;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:14px;
-      padding:10px 0;
+      gap:12px;
+      color:var(--muted);
+      font-size:13px;
     }
 
     .adBox{
       flex:1;
-      min-height:48px;
-      border:1px dashed rgba(255,255,255,.18);
-      border-radius:14px;
-      display:grid;
-      place-items:center;
-      color:var(--muted);
-      background:rgba(255,255,255,.02);
-      text-align:center;
-      padding:8px 12px;
-      font-size:14px;
+      height:64px;
+      border:1px dashed #2f3c5a;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#8ea2c6;
+      background:rgba(18,26,43,.35);
     }
 
-    .muted{ color:var(--muted); font-size:13px; }
-
-    @media (max-width: 860px){
-      .info-grid{
+    @media (max-width: 980px){
+      .content{
         grid-template-columns:1fr;
       }
 
-      .nav{
-        align-items:flex-start;
-        flex-direction:column;
-        padding:14px 0;
-      }
-
-      .navlinks{
-        width:100%;
-      }
-
-      .legal-inner{
-        padding:20px;
-      }
-
-      .adInner{
-        min-height:auto;
-        flex-direction:column;
-        align-items:stretch;
+      .hero{
+        grid-template-columns:1fr;
       }
     }
   </style>
 </head>
+
 <body>
-  <header class="topbar">
-    <div class="wrap nav">
-      <a class="brand" href="./index.html">
-        <div class="brand-badge">🛡️</div>
-        <div>AuthToolkit</div>
-      </a>
+  <div id="app" x-data="emailApp()" x-init="init()">
+    <template x-if="toast.show">
+      <div class="toast" x-text="toast.text"></div>
+    </template>
 
-      <nav class="navlinks">
-        <a href="./index.html">Home</a>
-        <a href="./privacy.html">Privacy</a>
-        <a href="./terms.html">Terms</a>
-        <a href="./abuse.html">Abuse</a>
-        <a href="./contact.html">Contact</a>
-        <a href="./about.html" class="active">About</a>
-      </nav>
-    </div>
-  </header>
-
-  <main class="page">
-    <div class="wrap">
-      <section class="page-hero">
-        <div class="eyebrow">About AuthToolkit</div>
-        <h1>Built for disposable inbox testing, privacy, and developer utility.</h1>
-        <p class="lead">
-          AuthToolkit is a privacy-first disposable inbox service designed for testing signups,
-          verification flows, transactional messages, and development workflows without using a
-          personal email address.
-        </p>
-      </section>
-
-      <section class="legal-card">
-        <div class="legal-inner">
-          <div class="section">
-            <h2>What we do</h2>
-            <p>
-              AuthToolkit provides temporary inboxes that help users receive email for short-term,
-              low-risk workflows such as testing app behavior, reviewing email templates, checking
-              verification delivery, and reducing inbox clutter.
-            </p>
-            <p>
-              The service is built with a simple goal: make temporary inbox access fast, clear, and
-              privacy-conscious while keeping expectations honest about limitations, retention, and use.
-            </p>
-          </div>
-
-          <div class="section">
-            <h2>Who it is for</h2>
-            <p>AuthToolkit may be useful for:</p>
-            <ul>
-              <li>Developers testing email verification, magic links, and password reset flows</li>
-              <li>QA teams validating transactional email behavior</li>
-              <li>Users who want to avoid sharing a personal inbox for low-value signups</li>
-              <li>Builders exploring privacy-focused tools for short-lived email workflows</li>
-            </ul>
-          </div>
-
-          <div class="section">
-            <h2>What it is not for</h2>
-            <p>
-              AuthToolkit is not intended for unlawful activity, impersonation, fraud, harassment,
-              abuse of third-party platforms, or bypassing a service’s terms, policies, or security controls.
-            </p>
-            <p>
-              Temporary inboxes also should not be relied on for sensitive, permanent, or high-value
-              accounts because inboxes expire, content may be deleted, and continuity is not guaranteed.
-            </p>
-          </div>
-
-          <div class="section">
-            <h2>Our approach</h2>
-            <p>
-              We prefer a straightforward product: fast temporary inbox creation, simple UI, clear limits,
-              and transparent disclosures. As the platform grows, we may expand into additional developer
-              tools around verification flows, sandbox environments, and privacy-oriented testing utilities.
-            </p>
-          </div>
-
-          <div class="section">
-            <h2>Product direction</h2>
-            <p>
-              AuthToolkit is being developed as part of a broader toolkit vision focused on practical
-              infrastructure for developers and privacy-conscious workflows. That includes areas such as:
-            </p>
-            <ul>
-              <li>Email and OTP testing tools</li>
-              <li>Webhook and API utilities</li>
-              <li>Verification sandbox workflows</li>
-              <li>Reusable infrastructure for future developer products</li>
-            </ul>
-
-            <div class="info-grid">
-              <div class="info-box">
-                <div class="label">Primary focus</div>
-                <div class="value">Temporary inbox testing</div>
-              </div>
-              <div class="info-box">
-                <div class="label">Priority</div>
-                <div class="value">Privacy, clarity, and usability</div>
-              </div>
-              <div class="info-box">
-                <div class="label">Audience</div>
-                <div class="value">Developers, testers, and privacy-minded users</div>
-              </div>
+    <div class="page">
+      <!-- Top bar -->
+      <div class="topbar">
+        <div class="row">
+          <div class="brand">
+            <div class="logo">
+              <img src="./logo.png" alt="AuthToolkit logo" />
             </div>
+            <strong>AuthToolkit</strong>
           </div>
-
-          <div class="section">
-            <h2>Contact</h2>
-            <p>
-              For general inquiries, policy questions, or business-related contact, visit the
-              <a href="./contact.html">Contact</a> page.
-            </p>
-            <p>
-              For misuse reports or abuse concerns, use the
-              <a href="./abuse.html">Abuse</a> page.
-            </p>
+      
+          <div class="pills">
+            <span class="pill">✅ Privacy</span>
+            <span class="pill">✅ No signup</span>
+            <span class="pill">✅ Testing-ready</span>
+            <span class="pill">✅ Micro-infrastructure</span>
           </div>
         </div>
-      </section>
-    </div>
-  </main>
-
-  <footer>
-    <div class="wrap footer-row">
-      <div>© 2026 AuthToolkit. All rights reserved.</div>
-      <div class="footer-links">
-        <a href="./index.html">Home</a>
-        <a href="./privacy.html">Privacy</a>
-        <a href="./terms.html">Terms</a>
-        <a href="./abuse.html">Abuse</a>
-        <a href="./contact.html">Contact</a>
-        <a href="./about.html">About</a>
+      
+        <div class="subtitle">Privacy-first disposable inbox for testing &amp; automation</div>
       </div>
-    </div>
-  </footer>
+      
+      <!-- Expired banner -->
+      <div class="expBanner" x-show="isExpired" style="display:none;">
+        Inbox expired. Create a new inbox to continue.
+      </div>
 
-  <div class="adbar">
-    <div class="adInner">
-      <div class="muted">Ad</div>
-      <div class="adBox">1&quot; Fixed Banner Area (Google Ads later)</div>
-      <div class="muted">Never disappears</div>
+      <!-- Main content -->
+      <div class="content">
+        <!-- Left menu -->
+        <aside class="side">
+          <h3>Services (Roadmap)</h3>
+          <div class="hint">
+            We’re building a suite of micro-infrastructure tools for QA, auth testing, and privacy.
+            These are shown here as a roadmap.
+          </div>
+
+          <div class="svc"><div class="name">Text-to-Verify Service</div><div class="desc">Generate disposable inbox + verification flow for testing signup forms.</div><span class="tag">Coming soon</span></div>
+          <div class="svc"><div class="name">OTP Testing Sandbox</div><div class="desc">Simulate OTP verification, retries, throttling, and edge cases.</div><span class="tag">Coming soon</span></div>
+          <div class="svc"><div class="name">Simple API Service</div><div class="desc">Minimal endpoints for inbox creation, fetch, retention policies.</div><span class="tag">Planned</span></div>
+          <div class="svc"><div class="name">Webhook Forwarding</div><div class="desc">Forward received email/SMS events to your staging webhooks.</div><span class="tag">Planned</span></div>
+          <div class="svc"><div class="name">Dedicated Inbox for Testing</div><div class="desc">Stable inboxes with controls: retention, allowlist, API keys.</div><span class="tag">Planned</span></div>
+          <div class="svc"><div class="name">Temp Phone Number</div><div class="desc">Disposable numbers for signup testing and QA flows.</div><span class="tag">Future</span></div>
+          <div class="svc"><div class="name">SMS OTP Capture</div><div class="desc">Capture inbound OTPs and expose via API + webhook.</div><span class="tag">Future</span></div>
+          <div class="svc"><div class="name">Generate OTP</div><div class="desc">Generate time-based OTPs and verification simulators.</div><span class="tag">Future</span></div>
+          <div class="svc"><div class="name">Simulate Email Delivery</div><div class="desc">Deliverability simulations for staging and integration tests.</div><span class="tag">Future</span></div>
+          <div class="svc"><div class="name">Simulate SMS Delivery</div><div class="desc">Simulated SMS provider responses and failure modes.</div><span class="tag">Future</span></div>
+          <div class="svc"><div class="name">API Access Service</div><div class="desc">Keys, quotas, usage logs, and billing controls.</div><span class="tag">Future</span></div>
+          <div class="svc"><div class="name">Metadata Remover for Images</div><div class="desc">Strip EXIF/location metadata before sharing.</div><span class="tag">Future</span></div>
+        </aside>
+
+        <!-- Right main -->
+        <main class="main">
+          <div class="card contentPage">
+            <h1>About AuthToolkit</h1>
+            <p>
+              AuthToolkit is a privacy-first disposable inbox service built for testing, automation,
+              QA workflows, and short-term email use without exposing a personal inbox.
+            </p>
+
+            <h2>What AuthToolkit is</h2>
+            <p>
+              AuthToolkit provides temporary email inboxes that help developers, testers, and
+              privacy-conscious users receive messages for short-lived workflows such as signup
+              verification, password reset testing, transactional email review, and automation checks.
+            </p>
+
+            <h2>Why it exists</h2>
+            <p>
+              Many users do not want to expose their personal inbox to low-value signups, testing
+              flows, or repeated product experiments. AuthToolkit exists to make that process simple,
+              fast, and practical while supporting a broader toolkit vision around testing
+              infrastructure and privacy-oriented utilities.
+            </p>
+
+            <h2>Who it is for</h2>
+            <ul>
+              <li>Developers testing auth flows, magic links, and email verification</li>
+              <li>QA teams validating product behavior and message delivery</li>
+              <li>Builders working on automation or staging workflows</li>
+              <li>Users trying to avoid unnecessary spam in a personal inbox</li>
+            </ul>
+
+            <h2>What we are building toward</h2>
+            <p>
+              AuthToolkit is intended to grow beyond temporary inboxes into a wider set of
+              micro-infrastructure tools for authentication testing, sandbox environments,
+              verification workflows, messaging simulation, and related developer utilities.
+            </p>
+
+            <h2>Current product direction</h2>
+            <p>
+              The roadmap shown on this page reflects the broader platform direction, including
+              temporary inboxes, OTP testing, webhook forwarding, API services, dedicated testing
+              inboxes, and future tooling for SMS and metadata privacy.
+            </p>
+
+            <h2>Our approach</h2>
+            <p>
+              We prefer straightforward tools with clear limitations, honest disclosures, and useful
+              functionality. Temporary inboxes are designed for convenience and testing, not for
+              storing sensitive or long-term communications.
+            </p>
+
+            <h2>Important note</h2>
+            <p>
+              AuthToolkit is not intended for fraud, impersonation, harassment, platform abuse, or
+              bypassing third-party rules. The service may evolve with additional protections,
+              abuse controls, and operational limits as usage grows.
+            </p>
+
+            <h2>Contact</h2>
+            <p>
+              For general enquiries, support, or business-related questions, contact:
+            </p>
+            <ul>
+              <li>support@authtoolkit.com</li>
+              <li>enquiry@authtoolkit.com</li>
+            </ul>
+          </div>
+        </main>
+      </div>
+
+      <!-- Disclaimer -->
+      <div class="disclaimer">
+        This temporary inbox is intended for testing and disposable email use.
+        Messages may be public and automatically deleted.
+        By using this service you agree to the <a href="./terms.html">Terms of Use</a>.
+      </div>
+
+      <p class="footerNote">© 2026 AuthToolkit</p>
+
+      <!-- Fixed ad banner -->
+      <div class="adbar">
+        <div class="adInner">
+          <div class="muted">Ad</div>
+          <div class="adBox">1&quot; Fixed Banner Area (Google Ads later)</div>
+          <div class="muted">Never disappears</div>
+        </div>
+      </div>
     </div>
   </div>
 </body>
