@@ -1,187 +1,619 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Abuse & Responsible Use — AuthToolkit</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Abuse & Responsible Use — AuthToolkit</title>
 
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🛡️</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🛡️</text></svg>">
 
-<style>
+  <!-- App FIRST -->
+  <script defer src="./main.js?v=20260305-1"></script>
 
-:root{
-  --bg:#0b1220;
-  --card:#121a2b;
-  --border:#24304a;
-  --text:#e8eefc;
-  --muted:#9fb0d0;
-  --maxw:1100px;
-  --radius:16px;
-}
+  <!-- Alpine SECOND -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-*{box-sizing:border-box}
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:#121a2b;
+      --card2:#0f1730;
+      --border:#24304a;
+      --muted:#9fb0cc;
+      --text:#e6edf7;
+      --blue:#2563eb;
+      --blue2:#1d4ed8;
+      --danger:#b91c1c;
+      --adH:96px;
+    }
 
-body{
-  margin:0;
-  font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  background:var(--bg);
-  color:var(--text);
-}
+    *{ box-sizing:border-box; }
 
-a{
-  color:#8ab4ff;
-  text-decoration:none;
-}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background:var(--bg);
+      color:var(--text);
+      overflow-y:auto;
+    }
 
-a:hover{
-  text-decoration:underline;
-}
+    .page{
+      display:block;
+      padding-bottom:calc(var(--adH) + 80px);
+    }
 
-.topbar{
-  border-bottom:1px solid var(--border);
-  background:rgba(18,26,43,.75);
-  backdrop-filter:blur(8px);
-}
+    .topbar{
+      padding:22px 18px 16px;
+      border-bottom:1px solid var(--border);
+      background:rgba(18,26,43,.75);
+      backdrop-filter:blur(8px);
+    }
+      
+    .topbar .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:nowrap;
+    }
+      
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+      
+    .pills{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-left:auto;
+    }
+      
+    @media (max-width: 700px){
+      .topbar .row{
+        flex-wrap:wrap;
+      }
+      
+      .pills{
+        width:100%;
+        justify-content:flex-start;
+        margin-left:0;
+      }
+    }
+    
+    .brand{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
 
-.topbar .row{
-  width:min(var(--maxw), calc(100% - 32px));
-  margin:auto;
-  padding:18px 0;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-}
+    .brandlink{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      text-decoration:none;
+      color:var(--text);
+    }
 
-.brand{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
+    .logo{
+      width:34px;
+      height:34px;
+      border-radius:10px;
+      overflow:hidden;
+      flex:0 0 34px;
+      box-shadow:0 10px 22px rgba(0,0,0,.35);
+    }
 
-.logo img{
-  height:32px;
-}
+    .logo img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
 
-.page{
-  padding:40px 0;
-}
+    .title{
+      font-weight:900;
+      letter-spacing:.2px;
+      font-size:20px;
+    }
 
-.page-wrap{
-  width:min(var(--maxw), calc(100% - 32px));
-  margin:auto;
-}
+    .subtitle{
+      color:var(--muted);
+      font-size:15px;
+      margin-top:4px;
+    }
 
-.card{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  padding:28px;
-}
+    .pills{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      padding:14px 18px 0;
+    }
 
-h1{
-  margin-top:0;
-}
+    .pill{
+      display:inline-flex;
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:var(--card2);
+      color:var(--text);
+      font-size:14px;
+      font-weight:700;
+    }
 
-.muted{
-  color:var(--muted);
-}
+    .expBanner{
+      margin:14px 18px 0;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(185, 28, 28, .85);
+      color:#fff;
+      font-size:13px;
+      font-weight:800;
+    }
 
-ul{
-  line-height:1.6;
-}
+    .content{
+      display:grid;
+      grid-template-columns:320px 1fr;
+      gap:14px;
+      padding:14px 18px;
+      overflow:visible;
+    }
 
-.footer{
-  margin-top:30px;
-  font-size:14px;
-  color:var(--muted);
-}
+    .side{
+      border:1px solid var(--border);
+      background:var(--card);
+      border-radius:14px;
+      padding:12px;
+      overflow:auto;
+      box-shadow:0 10px 26px rgba(0,0,0,.25);
+    }
 
-</style>
+    .side h3{
+      margin:4px 0 10px;
+      font-size:14px;
+    }
+
+    .side .hint{
+      color:var(--muted);
+      font-size:12px;
+      margin-bottom:10px;
+    }
+
+    .svc{
+      border:1px solid var(--border);
+      background:var(--card2);
+      border-radius:12px;
+      padding:10px;
+      margin-bottom:10px;
+    }
+
+    .svc .name{
+      font-weight:700;
+      font-size:13px;
+    }
+
+    .svc .desc{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:4px;
+      line-height:1.35;
+    }
+
+    .tag{
+      display:inline-flex;
+      margin-top:8px;
+      font-size:11px;
+      color:#b6c5df;
+      border:1px solid var(--border);
+      background:rgba(37,99,235,.10);
+      padding:3px 8px;
+      border-radius:999px;
+    }
+
+    .main{
+      min-width:0;
+      overflow:visible;
+    }
+
+    .card{
+      min-width:0;
+      overflow:visible;
+      border:1px solid var(--border);
+      background:var(--card);
+      border-radius:14px;
+      padding:14px;
+      box-shadow:0 10px 26px rgba(0,0,0,.25);
+    }
+
+    .hero{
+      display:grid;
+      grid-template-columns:1.2fr .9fr;
+      gap:14px;
+      align-items:start;
+    }
+
+    .hero h1{
+      margin:0;
+      font-size:22px;
+    }
+
+    .hero p{
+      margin:10px 0 0;
+      color:var(--muted);
+      line-height:1.5;
+    }
+
+    .btnRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+
+    .btn{
+      border:1px solid #2f3c5a;
+      background:#1a2440;
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+    }
+
+    .btn:hover{
+      background:#202c4f;
+    }
+
+    .btn:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
+
+    .btnPrimary{
+      background:var(--blue);
+      border-color:var(--blue);
+    }
+
+    .btnPrimary:hover{
+      background:var(--blue2);
+    }
+
+    .btnDanger{
+      background:var(--danger);
+      border-color:var(--danger);
+    }
+
+    .btnDanger:hover{
+      background:#991b1b;
+    }
+
+    .input{
+      width:100%;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #2f3c5a;
+      background:var(--card2);
+      color:var(--text);
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono";
+    }
+
+    .muted{
+      color:var(--muted);
+    }
+
+    .mono{
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono";
+    }
+
+    .hr{
+      height:1px;
+      background:var(--border);
+      margin:12px 0;
+    }
+
+    .email-list{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      margin-top:12px;
+      max-height:320px;
+      overflow-y:auto;
+      padding-right:4px;
+    }
+
+    .email-card{
+      background:var(--card2);
+      border:1px solid var(--border);
+      padding:12px;
+      border-radius:8px;
+      cursor:pointer;
+    }
+
+    .email-body{
+      margin-top:12px;
+      padding:12px;
+      border:1px solid var(--border);
+      background:var(--card);
+      border-radius:10px;
+      max-height:260px;
+      overflow:auto;
+    }
+
+    .toast{
+      position:fixed;
+      right:18px;
+      top:18px;
+      background:var(--card2);
+      border:1px solid #2f3c5a;
+      padding:10px 12px;
+      border-radius:12px;
+      z-index:90;
+      box-shadow:0 10px 26px rgba(0,0,0,.35);
+    }
+
+    .disclaimer{
+      font-size:11px;
+      color:#9aa3b2;
+      text-align:center;
+      padding:4px 10px;
+      max-width:900px;
+      margin:6px auto 4px auto;
+      line-height:1.3;
+    }
+
+    .disclaimer a{
+      color:#7aa2ff;
+      text-decoration:none;
+    }
+
+    .disclaimer a:hover{
+      text-decoration:underline;
+    }
+
+    .footerNote{
+      font-size:12px;
+      color:#9aa3b2;
+      text-align:center;
+      margin:4px auto 8px auto;
+    }
+
+    .contentPage h1{
+      margin:0 0 10px;
+      font-size:28px;
+    }
+
+    .contentPage h2{
+      margin:22px 0 8px;
+      font-size:18px;
+    }
+
+    .contentPage p{
+      color:var(--muted);
+      line-height:1.6;
+      margin:0 0 12px;
+    }
+
+    .contentPage ul{
+      margin:0 0 14px 20px;
+      padding:0;
+      color:var(--muted);
+      line-height:1.6;
+    }
+
+    .contentPage li{
+      margin-bottom:8px;
+    }
+
+    .contentPage a{
+      color:#7aa2ff;
+      text-decoration:none;
+    }
+
+    .contentPage a:hover{
+      text-decoration:underline;
+    }
+
+    .adbar{
+      position:fixed;
+      left:0;
+      right:0;
+      bottom:0;
+      height:var(--adH);
+      border-top:1px solid var(--border);
+      background:#0a1020;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:60;
+    }
+
+    .adInner{
+      width:min(1100px, 100%);
+      padding:0 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .adBox{
+      flex:1;
+      height:64px;
+      border:1px dashed #2f3c5a;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#8ea2c6;
+      background:rgba(18,26,43,.35);
+    }
+
+    @media (max-width: 980px){
+      .content{
+        grid-template-columns:1fr;
+      }
+
+      .hero{
+        grid-template-columns:1fr;
+      }
+    }
+  </style>
 </head>
 
 <body>
+  <div id="app" x-data="emailApp()" x-init="init()">
+    <template x-if="toast.show">
+      <div class="toast" x-text="toast.text"></div>
+    </template>
 
-<header class="topbar">
-  <div class="row">
-    <div class="brand">
-      <div class="logo">
-        <img src="./logo.png" alt="AuthToolkit logo">
+    <div class="page">
+      <!-- Top bar -->
+      <div class="topbar">
+        <div class="row">
+          <div class="brand">
+            <div class="logo">
+              <img src="./logo.png" alt="AuthToolkit logo" />
+            </div>
+            <strong>AuthToolkit</strong>
+          </div>
+      
+          <div class="pills">
+            <span class="pill">✅ Privacy</span>
+            <span class="pill">✅ No signup</span>
+            <span class="pill">✅ Testing-ready</span>
+            <span class="pill">✅ Micro-infrastructure</span>
+          </div>
+        </div>
+      
+        <div class="subtitle">Privacy-first disposable inbox for testing &amp; automation</div>
       </div>
-      <strong>AuthToolkit</strong>
+      
+      <!-- Expired banner -->
+      <div class="expBanner" x-show="isExpired" style="display:none;">
+        Inbox expired. Create a new inbox to continue.
+      </div>
+
+      <!-- Main content -->
+      <div class="content">
+        <!-- Left menu -->
+        <aside class="side">
+          <h3>Services (Roadmap)</h3>
+          <div class="hint">
+            We’re building a suite of micro-infrastructure tools for QA, auth testing, and privacy.
+            These are shown here as a roadmap.
+          </div>
+
+          <div class="svc"><div class="name">Text-to-Verify Service</div><div class="desc">Generate disposable inbox + verification flow for testing signup forms.</div><span class="tag">Coming soon</span></div>
+          <div class="svc"><div class="name">OTP Testing Sandbox</div><div class="desc">Simulate OTP verification, retries, throttling, and edge cases.</div><span class="tag">Coming soon</span></div>
+          <div class="svc"><div class="name">Simple API Service</div><div class="desc">Minimal endpoints for inbox creation, fetch, retention policies.</div><span class="tag">Planned</span></div>
+          <div class="svc"><div class="name">Webhook Forwarding</div><div class="desc">Forward received email/SMS events to your staging webhooks.</div><span class="tag">Planned</span></div>
+          <div class="svc"><div class="name">Dedicated Inbox for Testing</div><div class="desc">Stable inboxes with controls: retention, allowlist, API keys.</div><span class="tag">Planned</span></div>
+          <div class="svc"><div class="name">Temp Phone Number</div><div class="desc">Disposable numbers for signup testing and QA flows.</div><span class="tag">Future</span></div>
+          <div class="svc"><div class="name">SMS OTP Capture</div><div class="desc">Capture inbound OTPs and expose via API + webhook.</div><span class="tag">Future</span></div>
+          <div class="svc"><div class="name">Generate OTP</div><div class="desc">Generate time-based OTPs and verification simulators.</div><span class="tag">Future</span></div>
+          <div class="svc"><div class="name">Simulate Email Delivery</div><div class="desc">Deliverability simulations for staging and integration tests.</div><span class="tag">Future</span></div>
+          <div class="svc"><div class="name">Simulate SMS Delivery</div><div class="desc">Simulated SMS provider responses and failure modes.</div><span class="tag">Future</span></div>
+          <div class="svc"><div class="name">API Access Service</div><div class="desc">Keys, quotas, usage logs, and billing controls.</div><span class="tag">Future</span></div>
+          <div class="svc"><div class="name">Metadata Remover for Images</div><div class="desc">Strip EXIF/location metadata before sharing.</div><span class="tag">Future</span></div>
+        </aside>
+
+        <!-- Right main -->
+        <main class="main">
+          <div class="card contentPage">
+            <h1>Abuse &amp; Responsible Use</h1>
+            <p>
+              AuthToolkit provides temporary inboxes for development, testing, automation workflows,
+              and privacy-conscious short-term use. We do not permit use of the service for spam,
+              fraud, harassment, impersonation, or other abusive or unlawful activity.
+            </p>
+
+            <h2>Report abuse</h2>
+            <p>
+              If you believe an AuthToolkit temporary inbox has been used in a harmful, abusive,
+              fraudulent, or unauthorized manner, please report it to:
+            </p>
+            <p>
+              <strong>abuse@authtoolkit.com</strong>
+            </p>
+
+            <h2>Please include</h2>
+            <ul>
+              <li>The temporary email address involved</li>
+              <li>Date and time of the incident</li>
+              <li>The affected website, service, or platform</li>
+              <li>A short description of the issue</li>
+              <li>Any relevant logs, screenshots, or evidence</li>
+            </ul>
+
+            <h2>Prohibited use</h2>
+            <p>
+              AuthToolkit must not be used for activities including, but not limited to:
+            </p>
+            <ul>
+              <li>Spam, unsolicited bulk messaging, or mass account creation</li>
+              <li>Fraud, impersonation, phishing, or deceptive behavior</li>
+              <li>Harassment, threats, abuse, or evasion of service restrictions</li>
+              <li>Unauthorized access attempts or other unlawful activity</li>
+              <li>Any activity that interferes with the reliability or security of the platform</li>
+            </ul>
+
+            <h2>How reports are handled</h2>
+            <p>
+              Abuse reports may be reviewed for legitimacy, severity, and supporting evidence.
+              AuthToolkit may investigate reported activity, review related technical records,
+              and take appropriate action to protect the service and third parties.
+            </p>
+
+            <h2>Possible actions</h2>
+            <ul>
+              <li>Blocking inbox creation from certain users, networks, or patterns of abuse</li>
+              <li>Restricting or disabling access to service components</li>
+              <li>Blocking destination domains or limiting certain activity flows</li>
+              <li>Preserving limited records where necessary for abuse investigation or legal compliance</li>
+            </ul>
+
+            <h2>Responsible service operation</h2>
+            <p>
+              AuthToolkit is intended to support legitimate developer testing, staging workflows,
+              QA, temporary signups, and privacy-sensitive short-term use. We aim to operate the
+              service responsibly and respond to credible abuse reports in good faith.
+            </p>
+
+            <h2>Contact</h2>
+            <p>
+              Abuse reports should be sent to:
+            </p>
+            <p>
+              <strong>abuse@authtoolkit.com</strong>
+            </p>
+          </div>
+        </main>
+      </div>
+
+      <!-- Disclaimer -->
+      <div class="disclaimer">
+        This temporary inbox is intended for testing and disposable email use.
+        Messages may be public and automatically deleted.
+        By using this service you agree to the <a href="./terms.html">Terms of Use</a>.
+      </div>
+
+      <p class="footerNote">© 2026 AuthToolkit</p>
+
+      <!-- Fixed ad banner -->
+      <div class="adbar">
+        <div class="adInner">
+          <div class="muted">Ad</div>
+          <div class="adBox">1&quot; Fixed Banner Area (Google Ads later)</div>
+          <div class="muted">Never disappears</div>
+        </div>
+      </div>
     </div>
   </div>
-</header>
-
-<main class="page">
-  <section class="page-wrap">
-
-    <div class="card">
-
-      <h1>Abuse & Responsible Use</h1>
-
-      <p class="muted">
-        AuthToolkit provides temporary inboxes designed for development, testing,
-        automation workflows, and privacy protection.
-      </p>
-
-      <p>
-        While the service is intended for legitimate use, we take abuse reports
-        seriously and investigate misuse of our infrastructure.
-      </p>
-
-      <h2>Report Abuse</h2>
-
-      <p>
-        If you believe AuthToolkit temporary inboxes are being used for abusive
-        or malicious activity, please contact:
-      </p>
-
-      <p>
-        <strong>abuse@authtoolkit.com</strong>
-      </p>
-
-      <h2>Please include</h2>
-
-      <ul>
-        <li>The temporary email address involved</li>
-        <li>Date and time of the activity</li>
-        <li>The service or platform affected</li>
-        <li>Any logs, screenshots, or relevant evidence</li>
-      </ul>
-
-      <h2>Prohibited Use</h2>
-
-      <p>
-        AuthToolkit services must not be used for activities including but not
-        limited to:
-      </p>
-
-      <ul>
-        <li>Spam or bulk unsolicited messaging</li>
-        <li>Fraud or impersonation</li>
-        <li>Harassment or abuse</li>
-        <li>Illegal activity or attempts to bypass service protections</li>
-      </ul>
-
-      <h2>Enforcement</h2>
-
-      <p>
-        AuthToolkit may investigate reported activity and may restrict access,
-        block domains, or take other actions necessary to prevent misuse of the
-        platform.
-      </p>
-
-      <div class="footer">
-        © AuthToolkit
-      </div>
-
-    </div>
-
-  </section>
-</main>
-
 </body>
 </html>
-```
-
