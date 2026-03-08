@@ -1,1 +1,187 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Abuse & Responsible Use — AuthToolkit</title>
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🛡️</text></svg>">
+
+<style>
+
+:root{
+  --bg:#0b1220;
+  --card:#121a2b;
+  --border:#24304a;
+  --text:#e8eefc;
+  --muted:#9fb0d0;
+  --maxw:1100px;
+  --radius:16px;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+a{
+  color:#8ab4ff;
+  text-decoration:none;
+}
+
+a:hover{
+  text-decoration:underline;
+}
+
+.topbar{
+  border-bottom:1px solid var(--border);
+  background:rgba(18,26,43,.75);
+  backdrop-filter:blur(8px);
+}
+
+.topbar .row{
+  width:min(var(--maxw), calc(100% - 32px));
+  margin:auto;
+  padding:18px 0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.logo img{
+  height:32px;
+}
+
+.page{
+  padding:40px 0;
+}
+
+.page-wrap{
+  width:min(var(--maxw), calc(100% - 32px));
+  margin:auto;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:28px;
+}
+
+h1{
+  margin-top:0;
+}
+
+.muted{
+  color:var(--muted);
+}
+
+ul{
+  line-height:1.6;
+}
+
+.footer{
+  margin-top:30px;
+  font-size:14px;
+  color:var(--muted);
+}
+
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="row">
+    <div class="brand">
+      <div class="logo">
+        <img src="./logo.png" alt="AuthToolkit logo">
+      </div>
+      <strong>AuthToolkit</strong>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+  <section class="page-wrap">
+
+    <div class="card">
+
+      <h1>Abuse & Responsible Use</h1>
+
+      <p class="muted">
+        AuthToolkit provides temporary inboxes designed for development, testing,
+        automation workflows, and privacy protection.
+      </p>
+
+      <p>
+        While the service is intended for legitimate use, we take abuse reports
+        seriously and investigate misuse of our infrastructure.
+      </p>
+
+      <h2>Report Abuse</h2>
+
+      <p>
+        If you believe AuthToolkit temporary inboxes are being used for abusive
+        or malicious activity, please contact:
+      </p>
+
+      <p>
+        <strong>abuse@authtoolkit.com</strong>
+      </p>
+
+      <h2>Please include</h2>
+
+      <ul>
+        <li>The temporary email address involved</li>
+        <li>Date and time of the activity</li>
+        <li>The service or platform affected</li>
+        <li>Any logs, screenshots, or relevant evidence</li>
+      </ul>
+
+      <h2>Prohibited Use</h2>
+
+      <p>
+        AuthToolkit services must not be used for activities including but not
+        limited to:
+      </p>
+
+      <ul>
+        <li>Spam or bulk unsolicited messaging</li>
+        <li>Fraud or impersonation</li>
+        <li>Harassment or abuse</li>
+        <li>Illegal activity or attempts to bypass service protections</li>
+      </ul>
+
+      <h2>Enforcement</h2>
+
+      <p>
+        AuthToolkit may investigate reported activity and may restrict access,
+        block domains, or take other actions necessary to prevent misuse of the
+        platform.
+      </p>
+
+      <div class="footer">
+        © AuthToolkit
+      </div>
+
+    </div>
+
+  </section>
+</main>
+
+</body>
+</html>
+```
 
