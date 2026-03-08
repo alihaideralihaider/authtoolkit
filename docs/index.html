@@ -42,50 +42,47 @@
       padding-bottom:calc(var(--adH) + 80px);
     }
 
-.topbar{
-  padding:22px 18px 16px;
-  border-bottom:1px solid var(--border);
-  background:rgba(18,26,43,.75);
-  backdrop-filter:blur(8px);
-}
-
-.topbar .row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  flex-wrap:nowrap;
-}
-
-.topbar .row .brand{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  justify-content:flex-start;
-  text-align:left;
-}
-
-.topbar .row .badges{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  justify-content:flex-end;
-  margin-left:auto;
-  white-space:nowrap;
-}
-
-@media (max-width: 700px){
-  .topbar .row{
-    flex-wrap:wrap;
-  }
-
-  .topbar .row .badges{
-    width:100%;
-    justify-content:flex-start;
-    white-space:normal;
-  }
-}
-
+      .topbar{
+        padding:22px 18px 16px;
+        border-bottom:1px solid var(--border);
+        background:rgba(18,26,43,.75);
+        backdrop-filter:blur(8px);
+      }
+      
+      .topbar .row{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
+        flex-wrap:nowrap;
+      }
+      
+      .brand{
+        display:flex;
+        align-items:center;
+        gap:12px;
+      }
+      
+      .pills{
+        display:flex;
+        align-items:center;
+        justify-content:flex-end;
+        gap:8px;
+        flex-wrap:wrap;
+        margin-left:auto;
+      }
+      
+      @media (max-width: 700px){
+        .topbar .row{
+          flex-wrap:wrap;
+        }
+      
+        .pills{
+          width:100%;
+          justify-content:flex-start;
+          margin-left:0;
+        }
+      }
     
     .brand{
       display:flex;
@@ -441,26 +438,26 @@
 
     <div class="page">
       <!-- Top bar -->
-      <div class="topbar">
-        <div class="row">
-          <div class="brand">
+         <div class="topbar">
+          <div class="row">
+           <div class="brand">
             <div class="logo">
               <img src="./logo.png" alt="AuthToolkit logo" />
-            </div>
-            <strong>AuthToolkit</strong>
+               </div>
+                <strong>AuthToolkit</strong>
+          </div>
+      
+          <div class="pills">
+            <span class="pill">✅ Privacy</span>
+            <span class="pill">✅ No signup</span>
+            <span class="pill">✅ Testing-ready</span>
+            <span class="pill">✅ Micro-infrastructure</span>
           </div>
         </div>
+      
         <div class="subtitle">Privacy-first disposable inbox for testing &amp; automation</div>
       </div>
-
-      <!-- Pills -->
-      <div class="pills">
-        <span class="pill">✅ Privacy</span>
-        <span class="pill">✅ No signup</span>
-        <span class="pill">✅ Testing-ready</span>
-        <span class="pill">✅ Micro-infrastructure</span>
-      </div>
-
+      
       <!-- Expired banner -->
       <div class="expBanner" x-show="isExpired" style="display:none;">
         Inbox expired. Create a new inbox to continue.
