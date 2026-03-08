@@ -31,11 +31,11 @@
     body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--text); }
 
     /* Layout: fixed ad, everything else fits above it */
-    .page{
-      height: calc(100vh - var(--adH));
-      display:flex;
-      flex-direction:column;
-    }
+  .page{
+  min-height: calc(100vh - var(--adH));
+  display:flex;
+  flex-direction:column;
+}
 
     /* Top bar */
     .topbar{
@@ -103,15 +103,14 @@
       font-weight:700;
     }
 
-    /* Content area */
-    .content{
-      flex:1;
-      display:grid;
-      grid-template-columns: 320px 1fr;
-      gap:14px;
-      padding:14px 18px;
-      overflow:hidden; /* important: no full-page scroll; inner panes scroll */
-    }
+   .content{
+  flex:1;
+  min-height:0;
+  display:grid;
+  grid-template-columns: 320px 1fr;
+  gap:14px;
+  padding:14px 18px;
+}
 
     /* Left services menu */
     .side{
