@@ -48,15 +48,36 @@
       background:rgba(18,26,43,.75);
       backdrop-filter:blur(8px);
     }
-
+    
     .topbar .row{
       display:flex;
       gap:12px;
       align-items:center;
       justify-content:space-between;
-      flex-wrap:wrap;
+      flex-wrap:nowrap;
     }
+    
+    @media (max-width: 700px){
+      .topbar .row{
+        flex-wrap:wrap;
+      }
+    }
+    
+    .topbar .row > :first-child{
+      flex:0 1 auto;
+    }
+    
+    .topbar .row > :last-child{
+      margin-left:auto;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:nowrap;
+      white-space:nowrap;
+    }
+    
 
+    
     .brand{
       display:flex;
       gap:10px;
