@@ -42,40 +42,42 @@
       padding-bottom:calc(var(--adH) + 80px);
     }
 
-    .topbar{
-      padding:22px 18px 16px;
-      border-bottom:1px solid var(--border);
-      background:rgba(18,26,43,.75);
-      backdrop-filter:blur(8px);
-    }
-    
-    .topbar .row{
-      display:flex;
-      gap:12px;
-      align-items:center;
-      justify-content:space-between;
-      flex-wrap:nowrap;
-    }
-    
-    @media (max-width: 700px){
+      .topbar{
+        padding:22px 18px 16px;
+        border-bottom:1px solid var(--border);
+        background:rgba(18,26,43,.75);
+        backdrop-filter:blur(8px);
+      }
+      
+      .topbar .row{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
+        flex-wrap:nowrap;
+      }
+
+        @media (max-width: 700px){
       .topbar .row{
         flex-wrap:wrap;
       }
     }
-    
-    .topbar .row > :first-child{
-      flex:0 1 auto;
-    }
-    
-    .topbar .row > :last-child{
-      margin-left:auto;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:nowrap;
-      white-space:nowrap;
-    }
-    
+
+      .topbar .row > :first-child{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        margin-right:auto;
+      }
+      
+      .topbar .row > :last-child{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        margin-left:auto;
+        white-space:nowrap;
+      }    
+
 
     
     .brand{
