@@ -1,32 +1,84 @@
-// Follow this setup guide to integrate the Deno language server with your editor:
-// https://deno.land/manual/getting_started/setup_your_environment
-// This enables autocomplete, go to definition, etc.
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-// Setup type definitions for built-in Supabase Runtime APIs
-import "@supabase/functions-js/edge-runtime.d.ts"
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Content-Type": "application/json",
+};
 
-console.log("Hello from Functions!")
-
-Deno.serve(async (req) => {
-  const { name } = await req.json()
-  const data = {
-    message: `Hello ${name}!`,
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
   }
 
-  return new Response(
-    JSON.stringify(data),
-    { headers: { "Content-Type": "application/json" } },
-  )
-})
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+  );
 
-/* To invoke locally:
+  const url = new URL(req.url);
+  const path = url.pathname;
+  const method = req.method;
 
-  1. Run `supabase start` (see: https://supabase.com/docs/reference/cli/supabase-start)
-  2. Make an HTTP request:
+  try {
+    // --- GET ALL INBOXES ---
+    if (path === "/api/inboxes" && method === "GET") {
+      const { data, error } = await supabase
+        .from("inbox_addresses")
+        .select("id, email_address, is_premium, email_count, last_email_at, created_at")
+        .order("created_at", { ascending: false });
 
-  curl -i --location --request POST 'http://127.0.0.1:54321/functions/v1/dashboard-authtoolkit-com' \
-    --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0' \
-    --header 'Content-Type: application/json' \
-    --data '{"name":"Functions"}'
+      if (error) {
+        console.error("Fetch inboxes error:", error);
+        return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
+      }
 
-*/
+      console.log(`Fetched ${data.length} inboxes`);
+      return new Response(JSON.stringify({ inboxes: data }), { headers: corsHeaders });
+    }
+
+    // --- GET SPECIFIC INBOX EMAILS ---
+    const inboxMatch = path.match(/^\/api\/inbox\/([^\/]+)$/);
+    if (inboxMatch && method === "GET") {
+      const emailAddress = decodeURIComponent(inboxMatch[1]).toLowerCase();
+
+      // Find inbox
+      const { data: inbox, error: inboxError } = await supabase
+        .from("inbox_addresses")
+        .select("id, email_address, email_count, last_email_at")
+        .eq("email_address", emailAddress)
+        .maybeSingle();
+
+      if (inboxError) {
+        console.error("Inbox lookup error:", inboxError);
+        return new Response(JSON.stringify({ error: inboxError.message }), { status: 500, headers: corsHeaders });
+      }
+
+      if (!inbox) {
+        return new Response(JSON.stringify({ error: "Inbox not found" }), { status: 404, headers: corsHeaders });
+      }
+
+      // Fetch emails (include body)
+      const { data: emails, error: emailsError } = await supabase
+        .from("emails")
+        .select("id, from_address, subject, body, created_at")
+        .eq("inbox_id", inbox.id)
+        .order("created_at", { ascending: false });
+
+      if (emailsError) {
+        console.error("Emails fetch error:", emailsError);
+        return new Response(JSON.stringify({ error: emailsError.message }), { status: 500, headers: corsHeaders });
+      }
+
+      console.log(`Fetched ${emails.length} emails for inbox: ${emailAddress}`);
+      return new Response(JSON.stringify({ inbox, emails }), { headers: corsHeaders });
+    }
+
+    return new Response(JSON.stringify({ error: "Not found" }), { status: 404, headers: corsHeaders });
+  } catch (err) {
+    console.error("API ERROR:", err);
+    return new Response(JSON.stringify({ error: "Server error" }), { status: 500, headers: corsHeaders });
+  }
+});
