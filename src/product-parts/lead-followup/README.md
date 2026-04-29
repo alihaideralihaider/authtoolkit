@@ -117,3 +117,29 @@ await runLeadFollowupExecution({
 ```
 
 Returns `shouldSend: true` with `delaySeconds: 300`.
+
+## Transport Layer (Mock)
+
+The mock transport simulates sending lead follow-up messages. It uses `console.log` only and does not call any external provider.
+
+This is safe for local testing. A real transport adapter can later replace this with Twilio, Signal House, WhatsApp, email, or another messaging provider.
+
+Example flow:
+
+```ts
+const result = await runLeadFollowupExecution(input);
+
+if (
+  result.shouldSend &&
+  result.decision.channel &&
+  result.decision.messageDraft &&
+  input.contactValue
+) {
+  await sendLeadFollowupMessage({
+    channel: result.decision.channel,
+    to: input.contactValue,
+    message: result.decision.messageDraft,
+    delaySeconds: result.decision.delaySeconds,
+  });
+}
+```
