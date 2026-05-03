@@ -3,7 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>AuthToolkit — Privacy-first disposable inbox for testing</title>
+  <title>AuthToolkit — Temporary Email & Disposable Inbox for Testing</title>
+  <meta
+    name="description"
+    content="AuthToolkit provides a fast temporary email and disposable inbox for email testing, QA, staging, automation, and OTP verification testing without account signup."
+  />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <link rel="canonical" href="https://app.authtoolkit.com/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="AuthToolkit" />
+  <meta property="og:title" content="AuthToolkit — Temporary Email & Disposable Inbox for Testing" />
+  <meta
+    property="og:description"
+    content="Use a disposable inbox for email testing, QA, staging, automation, and OTP verification flows."
+  />
+  <meta property="og:url" content="https://app.authtoolkit.com/" />
+  <meta property="og:image" content="https://app.authtoolkit.com/logo.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="AuthToolkit — Temporary Email & Disposable Inbox for Testing" />
+  <meta
+    name="twitter:description"
+    content="Temporary email and disposable inboxes built for testing, QA, staging, automation, and OTP verification."
+  />
+  <meta name="twitter:image" content="https://app.authtoolkit.com/logo.png" />
 
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🛡️</text></svg>">
 
@@ -12,6 +34,22 @@
 
   <!-- Alpine SECOND -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "AuthToolkit",
+      "url": "https://app.authtoolkit.com/",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Web",
+      "description": "A privacy-first temporary email and disposable inbox web app for email testing, QA, staging, automation, and OTP verification testing.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+  </script>
 
   <style>
     :root{
@@ -197,6 +235,18 @@
       border-radius:12px;
       padding:10px;
       margin-bottom:10px;
+    }
+
+    .svcLink{
+      display:block;
+      color:inherit;
+      text-decoration:none;
+      transition:transform .15s ease, border-color .15s ease;
+    }
+
+    .svcLink:hover{
+      transform:translateY(-1px);
+      border-color:rgba(37,99,235,.75);
     }
 
     .svc .name{
@@ -468,16 +518,18 @@
 
     <div class="page">
       <!-- Top bar -->
-         <div class="topbar">
+         <header class="topbar">
           <div class="row">
            <div class="brand">
             <div class="logo">
               <img src="./logo.png" alt="AuthToolkit logo" />
                </div>
-                <strong>AuthToolkit</strong>
+                <a class="brandlink" href="./" aria-label="AuthToolkit home">
+                  <strong>AuthToolkit</strong>
+                </a>
           </div>
       
-          <div class="pills">
+          <div class="pills" aria-label="Product highlights">
             <span class="pill">✅ Privacy</span>
             <span class="pill">✅ No signup</span>
             <span class="pill">✅ Testing-ready</span>
@@ -485,8 +537,8 @@
           </div>
         </div>
       
-        <div class="subtitle">Privacy-first disposable inbox for testing &amp; automation</div>
-      </div>
+        <p class="subtitle">Privacy-first temporary email and disposable inbox for testing, QA, and automation</p>
+      </header>
       
       <!-- Expired banner -->
       <div class="expBanner" x-show="isExpired" style="display:none;">
@@ -497,16 +549,21 @@
       <div class="content">
         <!-- Left menu -->
         <aside class="side">
-          <h3>Services (Roadmap)</h3>
+          <h2>Services (Roadmap)</h2>
           <div class="hint">
             We’re building a suite of micro-infrastructure tools for QA, auth testing, and privacy.
             These are shown here as a roadmap.
           </div>
 
-          <div class="svc"><div class="name">Text-to-Verify Service</div><div class="desc">Generate disposable inbox + verification flow for testing signup forms.</div><span class="tag">Coming soon</span></div>
-          <div class="svc"><div class="name">OTP Testing Sandbox</div><div class="desc">Simulate OTP verification, retries, throttling, and edge cases.</div><span class="tag">Coming soon</span></div>
-          <div class="svc"><div class="name">Simple API Service</div><div class="desc">Minimal endpoints for inbox creation, fetch, retention policies.</div><span class="tag">Planned</span></div>
-          <div class="svc"><div class="name">Webhook Forwarding</div><div class="desc">Forward received email/SMS events to your staging webhooks.</div><span class="tag">Planned</span></div>
+          <a class="svc svcLink" href="/recovery-agents" aria-label="Recovery Agents by ReplyToRevenue">
+            <h3 class="name" id="svc-recovery-agents">Recovery Agents</h3>
+            <div class="desc">API-first agents that turn missed calls, checkouts, and follow-ups into measurable outcomes.</div>
+            <span class="tag">ReplyToRevenue</span>
+          </a>
+          <section class="svc" aria-labelledby="svc-text-to-verify"><h3 class="name" id="svc-text-to-verify">Text-to-Verify Service</h3><div class="desc">Generate a disposable inbox and verification flow for testing signup forms.</div><span class="tag">Coming soon</span></section>
+          <section class="svc" aria-labelledby="svc-otp-testing"><h3 class="name" id="svc-otp-testing">OTP Testing Sandbox</h3><div class="desc">Simulate OTP verification, retries, throttling, and edge cases for QA and staging.</div><span class="tag">Coming soon</span></section>
+          <section class="svc" aria-labelledby="svc-api-service"><h3 class="name" id="svc-api-service">Simple API Service</h3><div class="desc">Minimal endpoints for inbox creation, email testing, and retention policies.</div><span class="tag">Planned</span></section>
+          <section class="svc" aria-labelledby="svc-webhook-forwarding"><h3 class="name" id="svc-webhook-forwarding">Webhook Forwarding</h3><div class="desc">Forward received email and verification events to your staging webhooks.</div><span class="tag">Planned</span></section>
          <!-- <div class="svc"><div class="name">Dedicated Inbox for Testing</div><div class="desc">Stable inboxes with controls: retention, allowlist, API keys.</div><span class="tag">Planned</span></div> -->
          <!--<div class="svc"><div class="name">Temp Phone Number</div><div class="desc">Disposable numbers for signup testing and QA flows.</div><span class="tag">Future</span></div> -->
          <!-- <div class="svc"><div class="name">SMS OTP Capture</div><div class="desc">Capture inbound OTPs and expose via API + webhook.</div><span class="tag">Future</span></div> -->
@@ -519,14 +576,14 @@
 
         <!-- Right main -->
         <main class="main">
-          <div class="card hero">
+          <section class="card hero" aria-labelledby="page-heading">
             <!-- Left -->
             <div>
-              <h1>Private, disposable inboxes — built for testing.</h1>
+              <h1 id="page-heading">Private temporary email and disposable inboxes for testing.</h1>
               <p>
                 Use a temporary inbox to verify emails in staging, test signups, capture OTP links, and
-                avoid leaking your real address. We don’t ask for your name. We don’t need your account.
-                Create an inbox, copy it, and receive mail instantly.
+                support email testing for QA, automation, and verification workflows without leaking your real address.
+                We don’t ask for your name. We don’t need your account. Create an inbox, copy it, and receive mail instantly.
               </p>
 
               <div class="btnRow">
@@ -566,8 +623,9 @@
                 Tip: This landing page is intentionally simple and fast. The services menu is our roadmap.
               </div>
 
+              <section aria-labelledby="mailbox-heading">
               <div style="margin-top:12px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
-                <div style="font-weight:900;">Mailbox</div>
+                <h2 id="mailbox-heading" style="margin:0; font-size:18px; font-weight:900;">Mailbox</h2>
                 <div class="pill"><span x-text="emails.length"></span> messages</div>
               </div>
 
@@ -626,11 +684,12 @@
                   </template>
                 </div>
               </template>
+              </section>
             </div>
 
             <!-- Right -->
-            <div class="card" style="margin:0; background:var(--card2);">
-              <div style="font-weight:900; margin-bottom:8px; font-size:16px;">Your Temp Email Address</div>
+            <section class="card" style="margin:0; background:var(--card2);" aria-labelledby="temp-email-heading">
+              <h2 id="temp-email-heading" style="margin:0 0 8px; font-size:16px; font-weight:900;">Your Temp Email Address</h2>
 
               <template x-if="!email_address || isExpired">
                 <div class="muted" style="font-size:13px;">
@@ -677,19 +736,19 @@
                   </div>
                 </div>
               </template>
-            </div>
-          </div>
+            </section>
+          </section>
         </main>
       </div>
 
       <!-- Disclaimer -->
-      <div class="disclaimer">
+      <p class="disclaimer">
         This temporary inbox is intended for testing and disposable email use.
         Messages may be public and automatically deleted.
         By using this service you agree to the <a href="./terms.html">Terms of Use</a>.
-      </div>
+      </p>
 
-        <div class="footerLinks">
+        <nav class="footerLinks" aria-label="Footer">
         
           <a href="./about.html">About</a>
           <span>•</span>
@@ -708,7 +767,7 @@
         
           <a href="./contact.html">Contact</a>
         
-        </div>
+        </nav>
         
         <p class="footerNote">© 2026 AuthToolkit</p>
       

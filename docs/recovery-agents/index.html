@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ReplyToRevenue — Recovery Agents</title>
+  <meta
+    name="description"
+    content="ReplyToRevenue turns missed calls, checkouts, and follow-ups into measurable outcomes using persistent recovery agents."
+  />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <link rel="canonical" href="https://app.authtoolkit.com/recovery-agents" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="ReplyToRevenue" />
+  <meta property="og:title" content="ReplyToRevenue — Recovery Agents" />
+  <meta
+    property="og:description"
+    content="Persistent recovery agents work each opportunity until it converts, expires, or stops."
+  />
+  <meta property="og:url" content="https://app.authtoolkit.com/recovery-agents" />
+  <meta property="og:image" content="https://app.authtoolkit.com/logo.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="ReplyToRevenue — Recovery Agents" />
+  <meta
+    name="twitter:description"
+    content="Turn missed calls, checkouts, and follow-ups into revenue."
+  />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>↗️</text></svg>">
+
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:#121a2b;
+      --card2:#0f1730;
+      --border:#24304a;
+      --muted:#9fb0cc;
+      --text:#e6edf7;
+      --blue:#2563eb;
+      --blue2:#1d4ed8;
+      --green:#22c55e;
+      --orange:#f97316;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background:
+        radial-gradient(circle at top right, rgba(37,99,235,.22), transparent 34rem),
+        radial-gradient(circle at bottom left, rgba(34,197,94,.12), transparent 28rem),
+        var(--bg);
+      color:var(--text);
+    }
+
+    a{ color:inherit; }
+
+    .page{
+      min-height:100vh;
+      padding:22px 18px 54px;
+    }
+
+    .shell{
+      width:min(1120px, 100%);
+      margin:0 auto;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      flex-wrap:wrap;
+      padding:18px 0;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      text-decoration:none;
+    }
+
+    .logo{
+      width:36px;
+      height:36px;
+      border-radius:12px;
+      overflow:hidden;
+      box-shadow:0 10px 22px rgba(0,0,0,.35);
+      background:var(--card2);
+    }
+
+    .logo img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .brand strong{
+      font-size:18px;
+      letter-spacing:.1px;
+    }
+
+    .nav{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+
+    .nav a{
+      text-decoration:none;
+      color:var(--muted);
+      font-size:14px;
+      font-weight:800;
+      border:1px solid var(--border);
+      border-radius:999px;
+      padding:9px 12px;
+      background:rgba(18,26,43,.72);
+    }
+
+    .hero{
+      display:grid;
+      grid-template-columns:1.05fr .95fr;
+      gap:18px;
+      align-items:center;
+      padding:54px 0 30px;
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      border:1px solid rgba(37,99,235,.45);
+      background:rgba(37,99,235,.12);
+      color:#bfdbfe;
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:12px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+    }
+
+    h1{
+      margin:18px 0 0;
+      font-size:clamp(42px, 7vw, 76px);
+      line-height:.96;
+      letter-spacing:-.03em;
+    }
+
+    .subhead{
+      margin:20px 0 0;
+      max-width:720px;
+      color:var(--muted);
+      font-size:20px;
+      line-height:1.55;
+    }
+
+    .btnRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:28px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:44px;
+      border-radius:14px;
+      padding:11px 16px;
+      font-weight:900;
+      text-decoration:none;
+      border:1px solid var(--border);
+      background:#1a2440;
+      color:var(--text);
+    }
+
+    .btnPrimary{
+      border-color:var(--blue);
+      background:var(--blue);
+    }
+
+    .card{
+      border:1px solid var(--border);
+      background:rgba(18,26,43,.86);
+      border-radius:22px;
+      padding:20px;
+      box-shadow:0 20px 50px rgba(0,0,0,.28);
+    }
+
+    .diagram{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .node{
+      border:1px solid var(--border);
+      background:var(--card2);
+      border-radius:16px;
+      padding:14px;
+    }
+
+    .node strong{
+      display:block;
+      font-size:15px;
+    }
+
+    .node span{
+      display:block;
+      margin-top:5px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.4;
+    }
+
+    .arrow{
+      color:var(--blue);
+      font-weight:900;
+      text-align:center;
+    }
+
+    .section{
+      padding:34px 0;
+    }
+
+    .section h2{
+      margin:0;
+      font-size:34px;
+      letter-spacing:-.02em;
+    }
+
+    .sectionIntro{
+      margin:12px 0 0;
+      max-width:760px;
+      color:var(--muted);
+      font-size:17px;
+      line-height:1.6;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(4, 1fr);
+      gap:14px;
+      margin-top:20px;
+    }
+
+    .tile h3{
+      margin:0;
+      font-size:18px;
+    }
+
+    .tile p{
+      margin:10px 0 0;
+      color:var(--muted);
+      line-height:1.55;
+      font-size:14px;
+    }
+
+    .facts{
+      display:grid;
+      grid-template-columns:repeat(3, 1fr);
+      gap:14px;
+      margin-top:20px;
+    }
+
+    .fact{
+      border:1px solid var(--border);
+      background:rgba(15,23,48,.72);
+      border-radius:18px;
+      padding:16px;
+    }
+
+    .fact strong{
+      display:block;
+      color:#dbeafe;
+    }
+
+    .fact span{
+      display:block;
+      margin-top:6px;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.5;
+    }
+
+    .footer{
+      border-top:1px solid var(--border);
+      margin-top:30px;
+      padding-top:22px;
+      color:var(--muted);
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      font-size:14px;
+    }
+
+    @media (max-width: 900px){
+      .hero{
+        grid-template-columns:1fr;
+        padding-top:32px;
+      }
+
+      .grid,
+      .facts{
+        grid-template-columns:1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="shell">
+      <header class="topbar">
+        <a class="brand" href="../" aria-label="AuthToolkit home">
+          <div class="logo">
+            <img src="../logo.png" alt="AuthToolkit logo" />
+          </div>
+          <strong>AuthToolkit</strong>
+        </a>
+        <nav class="nav" aria-label="Primary">
+          <a href="../">AuthToolkit</a>
+          <a href="#use-cases">Use cases</a>
+          <a href="#delivery">Delivery</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div>
+            <span class="eyebrow">ReplyToRevenue</span>
+            <h1>Turn missed calls, checkouts, and follow-ups into revenue.</h1>
+            <p class="subhead">
+              Persistent recovery agents work each opportunity until it converts, expires, or stops.
+            </p>
+            <div class="btnRow">
+              <a class="btn btnPrimary" href="#use-cases">Explore recovery agents</a>
+              <a class="btn" href="../">Back to AuthToolkit</a>
+            </div>
+          </div>
+
+          <section class="card" aria-labelledby="diagram-heading">
+            <h2 id="diagram-heading" style="margin:0 0 14px; font-size:22px;">Agent flow</h2>
+            <div class="diagram" aria-label="Event to outcome diagram">
+              <div class="node"><strong>Event</strong><span>missed call, checkout, follow-up trigger</span></div>
+              <div class="arrow" aria-hidden="true">↓</div>
+              <div class="node"><strong>Attempts Engine</strong><span>creates a persistent recovery job</span></div>
+              <div class="arrow" aria-hidden="true">↓</div>
+              <div class="node"><strong>Agent</strong><span>chooses the next safe action</span></div>
+              <div class="arrow" aria-hidden="true">↓</div>
+              <div class="node"><strong>Outcome</strong><span>converted, expired, stopped, or failed</span></div>
+              <div class="arrow" aria-hidden="true">↓</div>
+              <div class="node"><strong>Webhook / SFTP</strong><span>realtime delivery or UTC batch pull</span></div>
+            </div>
+          </section>
+        </section>
+
+        <section class="section">
+          <div class="card">
+            <h2>Brand architecture</h2>
+            <p class="sectionIntro">
+              AuthToolkit is the infrastructure and developer layer. ReplyToRevenue is the public recovery agents brand.
+              SaanaOS remains the first live vertical implementation for restaurants.
+            </p>
+            <div class="facts">
+              <div class="fact"><strong>AuthToolkit</strong><span>API-first infrastructure, event intake, trust, consent, and workflow primitives.</span></div>
+              <div class="fact"><strong>ReplyToRevenue</strong><span>Customer-facing Recovery Agents product for measurable revenue outcomes.</span></div>
+              <div class="fact"><strong>SaanaOS</strong><span>First live restaurant implementation. Missed Call Recovery is live.</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="use-cases">
+          <h2>Recovery agent patterns</h2>
+          <p class="sectionIntro">
+            The product starts with what is live, then expands carefully into future supported patterns.
+          </p>
+          <div class="grid">
+            <div class="card tile">
+              <h3>For restaurants</h3>
+              <p>SaanaOS is the first live restaurant use case. Missed Call Recovery is live and turns missed calls into direct ordering opportunities.</p>
+            </div>
+            <div class="card tile">
+              <h3>For agencies</h3>
+              <p>Package recovery outcomes for clients without forcing every workflow into a single SaaS dashboard.</p>
+            </div>
+            <div class="card tile">
+              <h3>For developers</h3>
+              <p>Send events, inspect runs, receive outcomes, and integrate with existing systems through APIs and delivery channels.</p>
+            </div>
+            <div class="card tile">
+              <h3>For future platforms</h3>
+              <p>Post-Checkout Revenue and Post-Checkout Growth are future supported patterns, not live integrations yet.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="delivery">
+          <div class="card">
+            <h2>Delivery and traceability</h2>
+            <p class="sectionIntro">
+              Webhooks are for realtime delivery. SFTP pull is for batch delivery. All timestamps are UTC.
+            </p>
+            <div class="facts">
+              <div class="fact"><strong>Realtime</strong><span>Webhooks deliver outcomes and action updates as they happen.</span></div>
+              <div class="fact"><strong>Batch</strong><span>SFTP pull provides UTC day-window files for client systems.</span></div>
+              <div class="fact"><strong>Trace</strong><span>Event → Attempts Engine → Agent → Outcome → Webhook / SFTP.</span></div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <span>© 2026 ReplyToRevenue / AuthToolkit</span>
+        <span>Post-Checkout patterns are future supported patterns, not live integrations yet.</span>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>
