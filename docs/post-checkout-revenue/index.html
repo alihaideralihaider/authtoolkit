@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ReplyToRevenue — Post-Checkout Revenue Agent</title>
+  <meta
+    name="description"
+    content="Future ReplyToRevenue Post-Checkout Revenue Agent concept: turn completed checkouts into the next best revenue action through traceable agents, webhooks, and SFTP batch handoff."
+  />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <link rel="canonical" href="https://app.authtoolkit.com/post-checkout-revenue" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="ReplyToRevenue" />
+  <meta property="og:title" content="ReplyToRevenue — Post-Checkout Revenue Agent" />
+  <meta
+    property="og:description"
+    content="Turn any checkout into the next sale. Future supported pattern, not live yet."
+  />
+  <meta property="og:url" content="https://app.authtoolkit.com/post-checkout-revenue" />
+  <meta property="og:image" content="https://app.authtoolkit.com/logo.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="ReplyToRevenue — Post-Checkout Revenue Agent" />
+  <meta
+    name="twitter:description"
+    content="Persistent post-checkout revenue agents for completed orders, bookings, payments, and donations."
+  />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>↗️</text></svg>">
+
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:#121a2b;
+      --card2:#0f1730;
+      --border:#24304a;
+      --muted:#9fb0cc;
+      --text:#e6edf7;
+      --blue:#2563eb;
+      --blue2:#1d4ed8;
+      --green:#22c55e;
+      --orange:#f97316;
+      --red:#ef4444;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background:
+        radial-gradient(circle at top right, rgba(37,99,235,.22), transparent 34rem),
+        radial-gradient(circle at 20% 80%, rgba(249,115,22,.10), transparent 26rem),
+        radial-gradient(circle at bottom left, rgba(34,197,94,.10), transparent 28rem),
+        var(--bg);
+      color:var(--text);
+    }
+
+    a{ color:inherit; }
+
+    .page{
+      min-height:100vh;
+      padding:22px 18px 54px;
+    }
+
+    .shell{
+      width:min(1120px, 100%);
+      margin:0 auto;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      flex-wrap:wrap;
+      padding:18px 0;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      text-decoration:none;
+    }
+
+    .logo{
+      width:36px;
+      height:36px;
+      border-radius:12px;
+      overflow:hidden;
+      box-shadow:0 10px 22px rgba(0,0,0,.35);
+      background:var(--card2);
+    }
+
+    .logo img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .brand strong{
+      font-size:18px;
+      letter-spacing:.1px;
+    }
+
+    .nav{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+
+    .nav a{
+      text-decoration:none;
+      color:var(--muted);
+      font-size:14px;
+      font-weight:800;
+      border:1px solid var(--border);
+      border-radius:999px;
+      padding:9px 12px;
+      background:rgba(18,26,43,.72);
+    }
+
+    .hero{
+      display:grid;
+      grid-template-columns:1.08fr .92fr;
+      gap:18px;
+      align-items:center;
+      padding:54px 0 30px;
+    }
+
+    .eyebrow,
+    .status{
+      display:inline-flex;
+      border:1px solid rgba(37,99,235,.45);
+      background:rgba(37,99,235,.12);
+      color:#bfdbfe;
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:12px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+    }
+
+    .status{
+      margin-top:14px;
+      border-color:rgba(249,115,22,.45);
+      background:rgba(249,115,22,.12);
+      color:#fed7aa;
+    }
+
+    h1{
+      margin:18px 0 0;
+      font-size:clamp(42px, 7vw, 76px);
+      line-height:.96;
+      letter-spacing:-.03em;
+    }
+
+    .subhead{
+      margin:20px 0 0;
+      max-width:720px;
+      color:var(--muted);
+      font-size:20px;
+      line-height:1.55;
+    }
+
+    .btnRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:28px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:44px;
+      border-radius:14px;
+      padding:11px 16px;
+      font-weight:900;
+      text-decoration:none;
+      border:1px solid var(--border);
+      background:#1a2440;
+      color:var(--text);
+    }
+
+    .btnPrimary{
+      border-color:var(--blue);
+      background:var(--blue);
+    }
+
+    .card{
+      border:1px solid var(--border);
+      background:rgba(18,26,43,.86);
+      border-radius:22px;
+      padding:20px;
+      box-shadow:0 20px 50px rgba(0,0,0,.28);
+    }
+
+    .diagram{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .node{
+      border:1px solid var(--border);
+      background:var(--card2);
+      border-radius:16px;
+      padding:14px;
+    }
+
+    .node strong{
+      display:block;
+      font-size:15px;
+    }
+
+    .node span{
+      display:block;
+      margin-top:5px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.4;
+    }
+
+    .arrow{
+      color:var(--blue);
+      font-weight:900;
+      text-align:center;
+    }
+
+    .section{
+      padding:34px 0;
+    }
+
+    .section h2{
+      margin:0;
+      font-size:34px;
+      letter-spacing:-.02em;
+    }
+
+    .sectionIntro{
+      margin:12px 0 0;
+      max-width:780px;
+      color:var(--muted);
+      font-size:17px;
+      line-height:1.6;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(4, 1fr);
+      gap:14px;
+      margin-top:20px;
+    }
+
+    .grid2{
+      display:grid;
+      grid-template-columns:repeat(2, 1fr);
+      gap:14px;
+      margin-top:20px;
+    }
+
+    .tile h3{
+      margin:0;
+      font-size:18px;
+    }
+
+    .tile p,
+    .tile li{
+      color:var(--muted);
+      line-height:1.55;
+      font-size:14px;
+    }
+
+    .tile p{
+      margin:10px 0 0;
+    }
+
+    .tile ul{
+      margin:12px 0 0;
+      padding-left:18px;
+    }
+
+    .facts{
+      display:grid;
+      grid-template-columns:repeat(3, 1fr);
+      gap:14px;
+      margin-top:20px;
+    }
+
+    .fact{
+      border:1px solid var(--border);
+      background:rgba(15,23,48,.72);
+      border-radius:18px;
+      padding:16px;
+    }
+
+    .fact strong{
+      display:block;
+      color:#dbeafe;
+    }
+
+    .fact span{
+      display:block;
+      margin-top:6px;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.5;
+    }
+
+    .split{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:16px;
+      margin-top:20px;
+    }
+
+    .faq{
+      display:grid;
+      gap:12px;
+      margin-top:20px;
+    }
+
+    details{
+      border:1px solid var(--border);
+      background:rgba(15,23,48,.72);
+      border-radius:16px;
+      padding:14px 16px;
+    }
+
+    summary{
+      cursor:pointer;
+      font-weight:900;
+    }
+
+    details p{
+      color:var(--muted);
+      line-height:1.55;
+      margin:10px 0 0;
+      font-size:14px;
+    }
+
+    .footer{
+      border-top:1px solid var(--border);
+      margin-top:30px;
+      padding-top:22px;
+      color:var(--muted);
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      font-size:14px;
+    }
+
+    @media (max-width: 900px){
+      .hero,
+      .split{
+        grid-template-columns:1fr;
+        padding-top:32px;
+      }
+
+      .grid,
+      .grid2,
+      .facts{
+        grid-template-columns:1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="shell">
+      <header class="topbar">
+        <a class="brand" href="../" aria-label="AuthToolkit home">
+          <div class="logo">
+            <img src="../logo.png" alt="AuthToolkit logo" />
+          </div>
+          <strong>AuthToolkit</strong>
+        </a>
+        <nav class="nav" aria-label="Primary">
+          <a href="../">AuthToolkit</a>
+          <a href="../recovery-agents/">Recovery Agents</a>
+          <a href="#faq">FAQ</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div>
+            <span class="eyebrow">ReplyToRevenue</span>
+            <h1>Turn any checkout into the next sale.</h1>
+            <p class="subhead">
+              Persistent post-checkout revenue agents help businesses turn completed orders,
+              bookings, payments, and donations into add-on revenue opportunities.
+            </p>
+            <span class="status">Future supported pattern. Not live yet. Early access / concept validation.</span>
+            <div class="btnRow">
+              <a class="btn btnPrimary" href="mailto:navid@authtoolkit.com?subject=Post-Checkout%20Revenue%20Early%20Access">Request early access</a>
+              <a class="btn" href="../recovery-agents/">View Recovery Agents</a>
+            </div>
+          </div>
+
+          <section class="card" aria-labelledby="diagram-heading">
+            <h2 id="diagram-heading" style="margin:0 0 14px; font-size:22px;">Post-checkout flow</h2>
+            <div class="diagram" aria-label="Checkout to usage metering diagram">
+              <div class="node"><strong>Checkout Completed</strong><span>completed order, booking, payment, or donation</span></div>
+              <div class="arrow" aria-hidden="true">↓</div>
+              <div class="node"><strong>Revenue Agent Evaluates Opportunity</strong><span>checks consent, timing, order value, and offer fit</span></div>
+              <div class="arrow" aria-hidden="true">↓</div>
+              <div class="node"><strong>Offer Created or Suppressed</strong><span>bad offers should be safely suppressed</span></div>
+              <div class="arrow" aria-hidden="true">↓</div>
+              <div class="node"><strong>Outcome Recorded</strong><span>accepted, expired, suppressed, or failed</span></div>
+              <div class="arrow" aria-hidden="true">↓</div>
+              <div class="node"><strong>Webhook / SFTP Handoff</strong><span>realtime delivery or UTC batch reconciliation</span></div>
+              <div class="arrow" aria-hidden="true">↓</div>
+              <div class="node"><strong>Usage Metered</strong><span>every step is recorded before billing is ever turned on</span></div>
+            </div>
+          </section>
+        </section>
+
+        <section class="section">
+          <div class="card">
+            <h2>Most businesses treat checkout as the end.</h2>
+            <p class="sectionIntro">
+              ReplyToRevenue treats checkout as the next revenue moment. Right after purchase, customer attention,
+              intent, and payment trust are still high. A relevant add-on, upgrade, tip, bundle, subscription, or
+              repeat-order path can create extra value. If no good offer exists, the agent should suppress the offer.
+            </p>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>Example scenarios</h2>
+          <p class="sectionIntro">
+            These are examples and future patterns, not claims that all integrations are live.
+          </p>
+          <div class="grid">
+            <div class="card tile">
+              <h3>Restaurant direct ordering</h3>
+              <p>Customer orders pizza. The agent offers a drink or dessert shortly after checkout.</p>
+            </div>
+            <div class="card tile">
+              <h3>Ecommerce</h3>
+              <p>Customer buys a product. The agent offers an accessory, refill, warranty, or bundle.</p>
+            </div>
+            <div class="card tile">
+              <h3>Service business</h3>
+              <p>Customer books an appointment. The agent offers an add-on service or maintenance plan.</p>
+            </div>
+            <div class="card tile">
+              <h3>Donation / fundraising</h3>
+              <p>Donor completes a gift. The agent offers monthly giving upgrade or campaign share.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="split">
+            <div class="card tile">
+              <h2>Working today</h2>
+              <ul>
+                <li>Universal Attempts Engine works in SaanaOS missed-call recovery.</li>
+                <li>Agent API traceability exists.</li>
+                <li>Non-billable usage metering exists.</li>
+                <li>Post-Checkout intake, static offer action logging, outcome recording, and webhook delivery have been internally validated.</li>
+              </ul>
+            </div>
+            <div class="card tile">
+              <h2>Future / not live as public product</h2>
+              <ul>
+                <li>Full Post-Checkout Revenue Agent.</li>
+                <li>Production connector library.</li>
+                <li>Offer selection engine.</li>
+                <li>Add-on payment link flow.</li>
+                <li>SFTP batch generation.</li>
+                <li>Billing.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="card">
+            <h2>Delivery and reporting</h2>
+            <p class="sectionIntro">
+              Webhook delivery is for realtime outcome handoff. SFTP pull is for daily or periodic batch
+              reconciliation. All timestamps are UTC. Clients handle timezone conversion. Email file delivery is not
+              part of the approved delivery model.
+            </p>
+            <div class="facts">
+              <div class="fact"><strong>Webhook</strong><span>Realtime outcome delivery for accepted, suppressed, expired, or failed outcomes.</span></div>
+              <div class="fact"><strong>SFTP pull</strong><span>Batch reconciliation files by UTC window when batch delivery is built.</span></div>
+              <div class="fact"><strong>Metering</strong><span>Events, runs, actions, outcomes, and deliveries are tracked before pricing is finalized.</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="faq">
+          <h2>Buyer questions</h2>
+          <div class="faq">
+            <details>
+              <summary>Will this break my checkout?</summary>
+              <p>No. The intended first public path starts after checkout by receiving a completed-checkout event.</p>
+            </details>
+            <details>
+              <summary>Do I need Shopify or Stripe approval?</summary>
+              <p>Not for the universal webhook/API concept. Native platform connectors are future possibilities, not live product claims.</p>
+            </details>
+            <details>
+              <summary>Can it work with a custom checkout?</summary>
+              <p>Yes. The first path is a universal webhook/API from a custom checkout or internal system.</p>
+            </details>
+            <details>
+              <summary>How do you avoid annoying customers?</summary>
+              <p>The agent should check consent, timing, offer relevance, suppression rules, and whether a follow-up is appropriate.</p>
+            </details>
+            <details>
+              <summary>What happens if no good offer exists?</summary>
+              <p>The agent should suppress the offer and record that decision rather than sending a bad offer.</p>
+            </details>
+            <details>
+              <summary>How do outcomes come back to my system?</summary>
+              <p>Realtime outcomes use webhooks. Batch reconciliation uses SFTP pull. Email file delivery is not part of the delivery model.</p>
+            </details>
+            <details>
+              <summary>Is this live today?</summary>
+              <p>Not as a public product. The underlying agent intake, tracing, metering, outcome recording, and webhook delivery slices have been internally validated.</p>
+            </details>
+            <details>
+              <summary>How will pricing work?</summary>
+              <p>Pricing is not finalized. It should wait until usage data is validated. Early infrastructure metering stays non-billable.</p>
+            </details>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="card">
+            <h2>Post-Checkout Revenue Calculator</h2>
+            <p class="sectionIntro">
+              Estimate how much revenue you may be leaving after checkout.
+            </p>
+            <div class="grid">
+              <div class="fact"><strong>Monthly checkouts</strong><span>Total completed checkouts per month.</span></div>
+              <div class="fact"><strong>Average order value</strong><span>Baseline value before post-checkout offers.</span></div>
+              <div class="fact"><strong>Eligible order percentage</strong><span>Share of orders where an offer could be relevant.</span></div>
+              <div class="fact"><strong>Add-on price + acceptance</strong><span>Average add-on price and estimated acceptance rate.</span></div>
+            </div>
+            <div class="btnRow">
+              <a class="btn" href="mailto:navid@authtoolkit.com?subject=Post-Checkout%20Revenue%20Calculator">Calculator coming soon</a>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="card">
+            <h2>Request early access</h2>
+            <p class="sectionIntro">
+              Agencies, custom checkout platforms, restaurants with direct ordering, ecommerce stores, service
+              businesses, and donation platforms can request early access or a deal-room walkthrough.
+            </p>
+            <div class="btnRow">
+              <a class="btn btnPrimary" href="mailto:navid@authtoolkit.com?subject=Post-Checkout%20Revenue%20Early%20Access">Request early access</a>
+              <a class="btn" href="../recovery-agents/">View Recovery Agents</a>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <span>© 2026 ReplyToRevenue / AuthToolkit</span>
+        <span>Post-Checkout Revenue Agent is a future supported pattern, not a live public product.</span>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>
