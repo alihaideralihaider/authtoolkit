@@ -1,27 +1,14 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "authtoolkit-site",
-  "main": "src/index.js",
-  "compatibility_date": "2026-04-12",
-  "assets": {
-    "directory": "./docs",
-    "binding": "ASSETS"
-  },
-  "routes": [
-    {
-      "pattern": "app.authtoolkit.com/*",
-      "zone_name": "authtoolkit.com"
-    },
-    {
-      "pattern": "www.app.authtoolkit.com/*",
-      "zone_name": "authtoolkit.com"
-    },
-    {
-      "pattern": "www.authtoolkit.com/*",
-      "zone_name": "authtoolkit.com"
-    }
-  ],
+  "name": "authtoolkit",
+  "compatibility_date": "2026-05-08",
   "observability": {
     "enabled": true
-  }
+  },
+  "assets": {
+    "directory": "docs"
+  },
+  "compatibility_flags": [
+    "nodejs_compat"
+  ]
 }
